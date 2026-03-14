@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<!-- 注意开始和结束标签大小写一致 -->
+		<Nullable>enable</Nullable>
+		<ApplicationIcon>icon.ico</ApplicationIcon>
+		<!-- 以下两行用于生成独立的 exe 文件 -->
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Settings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Settings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\Settings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Page Update="MessageDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+
+</Project>
