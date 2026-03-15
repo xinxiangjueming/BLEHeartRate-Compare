@@ -115,12 +115,8 @@ namespace HeartRateMonitor
             }
         }
 
-        // 最后一次接收到心率数据的时间
         public DateTime LastHRTimestamp { get; set; }
-
-        // 连接事件记录（用于导出）
         public List<string> ConnectionEvents { get; set; } = new List<string>();
-
         public Queue<int> RRBuffer { get; set; } = new Queue<int>();
         public LineSeries? HrSeries { get; set; }
 
@@ -156,7 +152,6 @@ namespace HeartRateMonitor
         private DateTime? _sessionStartTime = null;
         private readonly Queue<int> _timeLabels = new Queue<int>();
 
-        // 颜色数组（与XAML中的ColorOptions顺序一致）
         private static readonly OxyColor[] PredefinedColors = new OxyColor[]
         {
             OxyColors.Red,
@@ -167,7 +162,6 @@ namespace HeartRateMonitor
             OxyColors.Black
         };
 
-        // 数据点上限（2小时 = 7200秒；可改为3小时 = 10800）
         private const int MaxDataPoints = 7200;
         private const int MaxRRPoints = 7200;
 
@@ -492,7 +486,6 @@ namespace HeartRateMonitor
             device.Connected = false;
             device.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 断开连接");
 
-            // 将实时数据置为 null，避免残留旧值
             device.HR = null;
             device.LastRR = null;
             device.LastSDNN = null;
@@ -723,10 +716,8 @@ namespace HeartRateMonitor
 
             foreach (var dev in _connectedDevices)
             {
-                // 判断这一秒是否有新数据
                 bool hasNewDataThisSecond = dev.LastHRTimestamp >= now.AddSeconds(-1);
 
-                // 计算 HRV（仅当有数据且设备连接时）
                 if (dev.Connected)
                 {
                     var rrList = dev.RRBuffer.ToList();
@@ -760,7 +751,7 @@ namespace HeartRateMonitor
                         dev.LastHRV = null;
                     }
 
-                    if (dev.HR.HasValue && dev.HrSeries != null && hasNewDataThisSecond) // 只在有数据时添加图表点
+                    if (dev.HR.HasValue && dev.HrSeries != null && hasNewDataThisSecond)
                     {
                         dev.HrSeries.Points.Add(new DataPoint(currentSeconds, dev.HR.Value));
                         if (dev.HrSeries.Points.Count > MaxDataPoints)
@@ -768,36 +759,19 @@ namespace HeartRateMonitor
                     }
                 }
 
-                // 记录历史数据（有数据则记录值，否则记录 null）
-                if (hasNewDataThisSecond)
-                {
-                    dev.HRData.Enqueue(dev.HR);
-                    dev.RRData.Enqueue(dev.LastRR);
-                    dev.SDNNData.Enqueue(dev.LastSDNN);
-                    dev.HRVData.Enqueue(dev.LastHRV);
-                }
-                else
-                {
-                    dev.HRData.Enqueue(null);
-                    dev.RRData.Enqueue(null);
-                    dev.SDNNData.Enqueue(null);
-                    dev.HRVData.Enqueue(null);
-                }
+                // 记录历史数据
+                dev.HRData.Enqueue(hasNewDataThisSecond ? dev.HR : null);
+                dev.RRData.Enqueue(hasNewDataThisSecond ? dev.LastRR : null);
+                dev.SDNNData.Enqueue(hasNewDataThisSecond ? dev.LastSDNN : null);
+                dev.HRVData.Enqueue(hasNewDataThisSecond ? dev.LastHRV : null);
+                dev.BatteryData.Enqueue(dev.BatteryLevel); // 电池独立，保留最后值
 
-                // 电池数据独立处理（保留最后已知值）
-                dev.BatteryData.Enqueue(dev.BatteryLevel);
-                if (dev.BatteryData.Count > MaxDataPoints)
-                    dev.BatteryData.Dequeue();
-
-                // 限制各队列长度
-                while (dev.HRData.Count > MaxDataPoints)
-                    dev.HRData.Dequeue();
-                while (dev.RRData.Count > MaxDataPoints)
-                    dev.RRData.Dequeue();
-                while (dev.SDNNData.Count > MaxDataPoints)
-                    dev.SDNNData.Dequeue();
-                while (dev.HRVData.Count > MaxDataPoints)
-                    dev.HRVData.Dequeue();
+                // 限制队列长度
+                while (dev.HRData.Count > MaxDataPoints) dev.HRData.Dequeue();
+                while (dev.RRData.Count > MaxDataPoints) dev.RRData.Dequeue();
+                while (dev.SDNNData.Count > MaxDataPoints) dev.SDNNData.Dequeue();
+                while (dev.HRVData.Count > MaxDataPoints) dev.HRVData.Dequeue();
+                while (dev.BatteryData.Count > MaxDataPoints) dev.BatteryData.Dequeue();
             }
 
             UpdateXAxisRange();
@@ -872,8 +846,6 @@ namespace HeartRateMonitor
             device.Device = null;
             device.HeartRateChar = null;
             device.BatteryChar = null;
-
-            // 清除实时数据
             device.HR = null;
             device.LastRR = null;
             device.LastSDNN = null;
@@ -1000,16 +972,16 @@ namespace HeartRateMonitor
                             switch (field)
                             {
                                 case "心率":
-                                    value = (i < arrays.HR.Length && arrays.HR[i].HasValue) ? arrays.HR[i].Value.ToString() : "";
+                                    value = (i < arrays.HR.Length) ? arrays.HR[i]?.ToString() ?? "" : "";
                                     break;
                                 case "RR":
-                                    value = (i < arrays.RR.Length && arrays.RR[i].HasValue) ? arrays.RR[i].Value.ToString() : "";
+                                    value = (i < arrays.RR.Length) ? arrays.RR[i]?.ToString() ?? "" : "";
                                     break;
                                 case "SDNN":
-                                    value = (i < arrays.SDNN.Length && arrays.SDNN[i].HasValue) ? arrays.SDNN[i].Value.ToString("F1") : "";
+                                    value = (i < arrays.SDNN.Length) ? arrays.SDNN[i]?.ToString("F1") ?? "" : "";
                                     break;
                                 case "HRV":
-                                    value = (i < arrays.HRV.Length && arrays.HRV[i].HasValue) ? arrays.HRV[i].Value.ToString("F1") : "";
+                                    value = (i < arrays.HRV.Length) ? arrays.HRV[i]?.ToString("F1") ?? "" : "";
                                     break;
                             }
                             row.Add(value);
