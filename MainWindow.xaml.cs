@@ -240,10 +240,17 @@ namespace HeartRateMonitor
         private void BtnScan_Click(object sender, RoutedEventArgs e)
         {
             DeviceList.Items.Clear();
-            DebugMessage("开始扫描蓝牙设备...");
+            DebugMessage("开始扫描心率设备...");
 
             _watcher?.Stop();
+
+            // 创建扫描器
             _watcher = new BluetoothLEAdvertisementWatcher();
+
+            // 设置过滤器：只扫描包含心率服务UUID的设备
+            _watcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(HeartRateServiceUuid);
+
+            // 设置扫描模式（主动扫描可获取更多信息）
             _watcher.ScanningMode = BluetoothLEScanningMode.Active;
 
             _watcher.Received += (w, btAdv) =>
@@ -251,21 +258,22 @@ namespace HeartRateMonitor
                 Dispatcher.Invoke(() =>
                 {
                     string name = btAdv.Advertisement.LocalName;
-                    if (string.IsNullOrEmpty(name)) return;
-
                     ulong address = btAdv.BluetoothAddress;
+
                     bool exists = DeviceList.Items.Cast<BluetoothLEAdvertisementReceivedEventArgs>()
                         .Any(x => x.BluetoothAddress == address);
+
                     if (!exists)
                     {
                         DeviceList.Items.Add(btAdv);
-                        DebugMessage($"发现设备: {name}");
+                        string displayName = string.IsNullOrEmpty(name) ? "未知设备" : name;
+                        DebugMessage($"发现心率设备: {displayName}");
                     }
                 });
             };
 
             _watcher.Start();
-            DebugMessage("扫描中...");
+            DebugMessage("扫描心率设备中...");
         }
 
         private async void BtnConnect_Click(object sender, RoutedEventArgs e)
@@ -483,24 +491,23 @@ namespace HeartRateMonitor
                 dev.LastRR = lastRR;
         }
 
-        // 新增：RR间期异常检测，去除孤立异常点（与前后差异均大于300ms）
+        // RR间期异常检测，去除孤立异常点（与前后差异均大于300ms）
         private List<int> FilterRRIntervals(List<int> rrList)
         {
-            if (rrList.Count < 3) return rrList; // 不足以检测孤立点
+            if (rrList.Count < 3) return rrList;
 
             var filtered = new List<int>();
             int n = rrList.Count;
             for (int i = 0; i < n; i++)
             {
                 bool keep = true;
-                // 对于非边界点，检查与前后点的差异
                 if (i > 0 && i < n - 1)
                 {
                     int prevDiff = Math.Abs(rrList[i] - rrList[i - 1]);
                     int nextDiff = Math.Abs(rrList[i] - rrList[i + 1]);
                     if (prevDiff > 300 && nextDiff > 300)
                     {
-                        keep = false; // 孤立异常，剔除
+                        keep = false;
                     }
                 }
                 if (keep)
@@ -525,10 +532,8 @@ namespace HeartRateMonitor
 
             foreach (var dev in _connectedDevices)
             {
-                // 获取原始RR列表
+                // 获取原始RR列表并过滤
                 var rrList = dev.RRBuffer.ToList();
-
-                // 应用异常检测过滤
                 var filteredRR = FilterRRIntervals(rrList);
 
                 if (filteredRR.Count >= 2)
@@ -548,7 +553,6 @@ namespace HeartRateMonitor
                             sumSqDiff += diff * diff;
                         }
                     }
-                    // SDNN = sqrt( (sumSq - sum^2/n) / n )
                     double sdnn = Math.Sqrt((sumSq - sum * sum / n) / n);
                     double hrv = Math.Sqrt(sumSqDiff / (n - 1));
                     dev.LastSDNN = sdnn;
@@ -560,7 +564,6 @@ namespace HeartRateMonitor
                     dev.LastHRV = null;
                 }
 
-                // 添加心率点到图表
                 if (dev.HR.HasValue && dev.HrSeries != null)
                 {
                     dev.HrSeries.Points.Add(new DataPoint(currentSeconds, dev.HR.Value));
@@ -568,7 +571,7 @@ namespace HeartRateMonitor
                         dev.HrSeries.Points.RemoveAt(0);
                 }
 
-                // 更新历史数据队列
+                // 记录历史数据
                 dev.HRData.Enqueue(dev.HR);
                 if (dev.HRData.Count > MaxDataPoints)
                     dev.HRData.Dequeue();
@@ -594,7 +597,6 @@ namespace HeartRateMonitor
             PlotModel.InvalidatePlot(true);
         }
 
-        // 双击设备名称断开连接
         private async void DeviceName_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
@@ -719,7 +721,6 @@ namespace HeartRateMonitor
             System.Diagnostics.Debug.WriteLine($"[MainWindow] {msg}");
         }
 
-        // 导出数据
         private void ExportCsv_Click(object sender, RoutedEventArgs e)
         {
             if (_connectedDevices.Count == 0)
@@ -746,13 +747,10 @@ namespace HeartRateMonitor
         {
             var csv = new System.Text.StringBuilder();
 
-            // 如果导出类型是历史数据
             if (exportType == "历史数据")
             {
-                // 确定要导出的字段（排除“设备”和“电量”）
                 var timeSeriesFields = fields.Where(f => f != "设备" && f != "电量").ToList();
 
-                // 构建表头：时间列 + 每个设备的每个字段
                 var headers = new List<string> { "时间" };
                 foreach (var dev in _connectedDevices)
                 {
@@ -763,11 +761,9 @@ namespace HeartRateMonitor
                 }
                 csv.AppendLine(string.Join(",", headers));
 
-                // 将队列转换为数组以便索引访问
                 var timeArray = _timeLabels.ToArray();
                 int dataCount = timeArray.Length;
 
-                // 预取每个设备的数据数组
                 var devDataArrays = _connectedDevices.Select(dev => new
                 {
                     HR = dev.HRData.ToArray(),
@@ -808,12 +804,10 @@ namespace HeartRateMonitor
                     csv.AppendLine(string.Join(",", row));
                 }
 
-                // 添加 Summary 部分
-                csv.AppendLine(); // 空行
+                csv.AppendLine();
                 csv.AppendLine("# Summary,,");
                 csv.AppendLine($"# Total Duration: {dataCount}s,,");
 
-                // 对每个设备输出心率统计和电池信息
                 foreach (var dev in _connectedDevices)
                 {
                     var hrArray = dev.HRData.Where(v => v.HasValue).Select(v => v.Value).ToArray();
@@ -829,7 +823,6 @@ namespace HeartRateMonitor
                         csv.AppendLine($"# Device: {dev.Alias}, Avg HR: --, Max: --, Min: --");
                     }
 
-                    // 电池信息（取最新值）
                     var lastBattery = dev.BatteryData.LastOrDefault();
                     string batteryStr = lastBattery.HasValue ? lastBattery.Value.ToString() + "%" : "--";
                     csv.AppendLine($"# Device: {dev.Alias}, Battery: {batteryStr},");
@@ -923,10 +916,8 @@ namespace HeartRateMonitor
             }
         }
 
-        // 窗口关闭时询问是否导出数据（弹出导出选项对话框）
         protected override void OnClosing(CancelEventArgs e)
         {
-            // 如果有已连接的设备，询问是否导出数据
             if (_connectedDevices.Count > 0)
             {
                 var dialog = new ConfirmDialog("是否在关闭前导出数据？")
@@ -937,7 +928,6 @@ namespace HeartRateMonitor
 
                 if (dialog.ShowDialog() == true)
                 {
-                    // 打开导出选项对话框，让用户自由选择
                     var exportDialog = new ExportOptionsDialog(_connectedDevices)
                     {
                         Owner = this

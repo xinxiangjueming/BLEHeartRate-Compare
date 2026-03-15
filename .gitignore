@@ -17,9 +17,7 @@ packages/
 *.nupkg
 
 ## Publish
-PublishProfiles/
-*.pubxml.user
-
+PublishProfiles/*.user
 ## Others
 *.Cache
 *.dbmdl
