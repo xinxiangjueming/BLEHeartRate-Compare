@@ -33,6 +33,7 @@ namespace HeartRateMonitor
         private double? _lastHRV;
         private int? _lastRR;
         private int _selectedColorIndex;
+        private bool _isVisible = true;  // 新增：曲线可见性
 
         public string Id { get; set; } = string.Empty;
         public string CleanName { get; set; } = string.Empty;
@@ -86,7 +87,21 @@ namespace HeartRateMonitor
             }
         }
 
-        // RRBuffer 改为 Queue<int>，仅存储RR毫秒值
+        // 新增：曲线可见性属性
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                if (_isVisible != value)
+                {
+                    _isVisible = value;
+                    OnPropertyChanged();
+                    VisibilityChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
         public Queue<int> RRBuffer { get; set; } = new Queue<int>();
         public DateTime LastHRTimestamp { get; set; }
         public LineSeries? HrSeries { get; set; }
@@ -101,6 +116,7 @@ namespace HeartRateMonitor
         public bool IsImported { get; set; } = false;
 
         public event EventHandler? ColorChanged;
+        public event EventHandler? VisibilityChanged;  // 新增：可见性变化事件
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name ?? string.Empty));
@@ -133,7 +149,6 @@ namespace HeartRateMonitor
 
         // 数据点上限（2小时 = 7200秒；可改为3小时 = 10800）
         private const int MaxDataPoints = 7200;
-        // RRBuffer 上限（按每秒1个RR估算，实际可能更多，7200足够；可适当增大）
         private const int MaxRRPoints = 7200;
 
         public PlotModel PlotModel
@@ -141,6 +156,9 @@ namespace HeartRateMonitor
             get => _plotModel;
             set { _plotModel = value; OnPropertyChanged(); }
         }
+
+        // 公开已连接设备集合，供图例绑定
+        public ObservableCollection<DeviceData> ConnectedDevices => _connectedDevices;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
@@ -153,6 +171,7 @@ namespace HeartRateMonitor
 
             InitializePlotModel();
             DevicesDataView.ItemsSource = _connectedDevices;
+            // 图例绑定已在 XAML 中设置 ItemsSource="{Binding ConnectedDevices, RelativeSource={RelativeSource AncestorType=Window}}"
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -244,13 +263,9 @@ namespace HeartRateMonitor
 
             _watcher?.Stop();
 
-            // 创建扫描器
             _watcher = new BluetoothLEAdvertisementWatcher();
-
             // 设置过滤器：只扫描包含心率服务UUID的设备
             _watcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(HeartRateServiceUuid);
-
-            // 设置扫描模式（主动扫描可获取更多信息）
             _watcher.ScanningMode = BluetoothLEScanningMode.Active;
 
             _watcher.Received += (w, btAdv) =>
@@ -336,11 +351,22 @@ namespace HeartRateMonitor
                         }
                     };
 
+                    // 订阅颜色变化事件
                     devData.ColorChanged += (s, args) =>
                     {
                         if (s is DeviceData d && d.HrSeries != null)
                         {
                             d.HrSeries.Color = PredefinedColors[d.SelectedColorIndex];
+                            PlotModel.InvalidatePlot(true);
+                        }
+                    };
+
+                    // 新增：订阅可见性变化事件
+                    devData.VisibilityChanged += (s, args) =>
+                    {
+                        if (s is DeviceData d && d.HrSeries != null)
+                        {
+                            d.HrSeries.IsVisible = d.IsVisible;
                             PlotModel.InvalidatePlot(true);
                         }
                     };
@@ -479,7 +505,6 @@ namespace HeartRateMonitor
                     if (rrMs >= 200 && rrMs <= 2000)
                     {
                         dev.RRBuffer.Enqueue(rrMs);
-                        // 限制RRBuffer大小
                         while (dev.RRBuffer.Count > MaxRRPoints)
                             dev.RRBuffer.Dequeue();
                     }
@@ -491,7 +516,7 @@ namespace HeartRateMonitor
                 dev.LastRR = lastRR;
         }
 
-        // RR间期异常检测，去除孤立异常点（与前后差异均大于300ms）
+        // RR间期异常检测
         private List<int> FilterRRIntervals(List<int> rrList)
         {
             if (rrList.Count < 3) return rrList;
@@ -532,7 +557,6 @@ namespace HeartRateMonitor
 
             foreach (var dev in _connectedDevices)
             {
-                // 获取原始RR列表并过滤
                 var rrList = dev.RRBuffer.ToList();
                 var filteredRR = FilterRRIntervals(rrList);
 
@@ -571,7 +595,6 @@ namespace HeartRateMonitor
                         dev.HrSeries.Points.RemoveAt(0);
                 }
 
-                // 记录历史数据
                 dev.HRData.Enqueue(dev.HR);
                 if (dev.HRData.Count > MaxDataPoints)
                     dev.HRData.Dequeue();

@@ -26,7 +26,10 @@
             <local:ColorOption Name="深蓝" Color="#00008B"/>
         </x:Array>
 
-        <!-- 圆角GroupBox样式（边框和标题使用柔和颜色） -->
+        <!-- OxyColor 转 Brush 转换器 -->
+        <local:OxyColorToBrushConverter x:Key="OxyColorToBrushConverter"/>
+
+        <!-- 圆角GroupBox样式（保持不变） -->
         <Style TargetType="GroupBox">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
@@ -93,7 +96,7 @@
             <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
         </Style>
 
-        <!-- 大圆角按钮样式（柔和） -->
+        <!-- 大圆角按钮样式 -->
         <Style x:Key="LargeRoundedButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource DefaultButtonBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
@@ -166,7 +169,7 @@
             </Setter>
         </Style>
 
-        <!-- 中等圆角按钮样式（用于图表控制栏） -->
+        <!-- 中等圆角按钮样式 -->
         <Style x:Key="MediumRoundedButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource DefaultButtonBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
@@ -200,7 +203,7 @@
             </Setter>
         </Style>
 
-        <!-- 圆角TextBox样式（添加柔和背景） -->
+        <!-- 圆角TextBox样式 -->
         <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource BackgroundSoftBrush}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -227,7 +230,7 @@
             </Setter>
         </Style>
 
-        <!-- 圆角ComboBox样式（背景已柔和） -->
+        <!-- 圆角ComboBox样式 -->
         <Style x:Key="RoundedComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background" Value="{StaticResource BackgroundSoftBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
@@ -308,6 +311,61 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 新增：圆角复选框样式，应用于设备图例 -->
+        <Style x:Key="RoundedCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- 复选框框（带圆角） -->
+                            <Border x:Name="CheckBoxBorder"
+                                    Width="16" Height="16"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,4,0">
+                                <Path x:Name="CheckMark"
+                                      Data="M4,8 L7,11 L12,4"
+                                      Stroke="Green"
+                                      StrokeThickness="2"
+                                      Visibility="Collapsed"/>
+                            </Border>
+                            <!-- 内容（颜色圆点+文字） -->
+                            <ContentPresenter x:Name="contentPresenter"
+                                              Grid.Column="1"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#999999"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="CheckBoxBorder" Property="Background" Value="#E0E0E0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="10">
@@ -324,7 +382,7 @@
                 <RowDefinition Height="1*" MinHeight="150"/>
             </Grid.RowDefinitions>
 
-            <!-- 功能区顶部：扫描控制区（添加 Background="Transparent" 避免白色背景） -->
+            <!-- 扫描控制区 -->
             <GroupBox Header="扫描控制" Grid.Row="0" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" 
                         BorderThickness="2" 
@@ -338,14 +396,12 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <!-- 第一行：扫描设备 + 导出数据 -->
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
                             <Button x:Name="BtnScan" Content="扫描设备" Click="BtnScan_Click" 
                                     Style="{StaticResource LargeRoundedButtonStyle}" Margin="0,0,15,0"/>
                             <Button x:Name="BtnExportCsv" Content="导出数据" Click="ExportCsv_Click" 
                                     Style="{StaticResource LargeRoundedButtonStyle}" Background="#FFD9E8F2"/>
                         </StackPanel>
-                        <!-- 第二行：连接设备 + 显示全部 -->
                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button x:Name="BtnConnect" Content="连接设备" Click="BtnConnect_Click" 
                                     Style="{StaticResource LargeRoundedButtonStyle}" Margin="0,0,15,0"/>
@@ -358,7 +414,7 @@
                 </Border>
             </GroupBox>
 
-            <!-- 扫描设备列表（添加 Background="Transparent"） -->
+            <!-- 扫描设备列表 -->
             <GroupBox Header="扫描到的设备" Grid.Row="1" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" 
                         BorderThickness="2" 
@@ -441,7 +497,7 @@
                 </Border>
             </GroupBox>
 
-            <!-- 实时数据表格（添加 Background="Transparent"） -->
+            <!-- 实时数据表格 -->
             <GroupBox Header="实时数据" Grid.Row="2" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" 
                         BorderThickness="2" 
@@ -490,7 +546,6 @@
                                                     <ColumnDefinition Width="80"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <!-- 竖线颜色微调 -->
                                                 <Border Grid.Column="1" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                                 <Border Grid.Column="3" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                                 <Border Grid.Column="5" Background="#DDDDDD" VerticalAlignment="Stretch"/>
@@ -583,7 +638,6 @@
                                                 <ColumnDefinition Width="80"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- 竖线颜色 -->
                                             <Border Grid.Column="1" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                             <Border Grid.Column="3" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                             <Border Grid.Column="5" Background="#DDDDDD" VerticalAlignment="Stretch"/>
@@ -671,9 +725,11 @@
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- 图表控制栏 -->
             <Grid Grid.Row="0" Margin="0,30,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -697,8 +753,36 @@
                 </StackPanel>
             </Grid>
 
-            <!-- 主图表区域：设置背景为柔和色，与整体一致 -->
-            <oxy:PlotView Grid.Row="1" x:Name="HrChart" Model="{Binding PlotModel}" Background="#FAFAFA" />
+            <!-- 设备图例行（应用圆角复选框样式） -->
+            <Border Grid.Row="1" Margin="0,0,0,10" Padding="8" Background="#F0F0F0" CornerRadius="6">
+                <ItemsControl x:Name="DeviceLegend" ItemsSource="{Binding ConnectedDevices, RelativeSource={RelativeSource AncestorType=Window}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsVisible}" 
+                                      Margin="8,0" 
+                                      VerticalAlignment="Center"
+                                      Style="{StaticResource RoundedCheckBoxStyle}">
+                                <CheckBox.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="12" Height="12" 
+                                                 Fill="{Binding HrSeries.Color, Converter={StaticResource OxyColorToBrushConverter}}" 
+                                                 Margin="0,0,4,0" Stroke="#888888" StrokeThickness="1"/>
+                                        <TextBlock Text="{Binding Alias}" FontSize="12" Foreground="#333333"/>
+                                    </StackPanel>
+                                </CheckBox.Content>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <!-- 主图表区域 -->
+            <oxy:PlotView Grid.Row="2" x:Name="HrChart" Model="{Binding PlotModel}" Background="#FAFAFA" />
         </Grid>
     </Grid>
 </Window>
