@@ -17,20 +17,22 @@
         <SolidColorBrush x:Key="TitleTextSoftBrush" Color="#222222"/>
         <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F0F0F0"/>
 
-        <!-- 颜色选项列表（用于绑定） -->
+        <!-- 颜色选项列表（用于绑定） - 彩虹七色改良版 -->
         <x:Array x:Key="ColorOptions" Type="local:ColorOption">
             <local:ColorOption Name="红色" Color="#FF0000"/>
             <local:ColorOption Name="橙色" Color="#FFA500"/>
             <local:ColorOption Name="绿色" Color="#00FF00"/>
-            <local:ColorOption Name="品蓝" Color="#0000FF"/>
+            <local:ColorOption Name="蓝色" Color="#1E90FF"/>
             <local:ColorOption Name="紫色" Color="#800080"/>
             <local:ColorOption Name="黑色" Color="#000000"/>
         </x:Array>
 
         <!-- OxyColor 转 Brush 转换器 -->
         <local:OxyColorToBrushConverter x:Key="OxyColorToBrushConverter"/>
+        <!-- Boolean 转 Visibility 转换器 -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-        <!-- 圆角GroupBox样式（保持不变） -->
+        <!-- 圆角GroupBox样式 -->
         <Style TargetType="GroupBox">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
@@ -132,7 +134,7 @@
             </Setter>
         </Style>
 
-        <!-- 大圆角ToggleButton样式 -->
+        <!-- 大圆角ToggleButton样式（修改选中背景为淡紫色） -->
         <Style x:Key="LargeRoundedToggleButtonStyle" TargetType="ToggleButton">
             <Setter Property="Background" Value="{StaticResource DefaultButtonBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
@@ -162,7 +164,8 @@
                                 <Setter Property="Background" Value="#D8D8D8"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#C8E6C9"/>
+                                <Setter Property="Background" Value="#E0B0FF"/>
+                                <!-- 淡紫色 -->
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -395,15 +398,19 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
+                        <!-- 第一行：扫描设备 + 导出数据 -->
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
                             <Button x:Name="BtnScan" Content="扫描设备" Click="BtnScan_Click" 
                                     Style="{StaticResource LargeRoundedButtonStyle}" Margin="0,0,15,0"/>
                             <Button x:Name="BtnExportCsv" Content="导出数据" Click="ExportCsv_Click" 
                                     Style="{StaticResource LargeRoundedButtonStyle}" Background="#FFD9E8F2"/>
                         </StackPanel>
+                        <!-- 第二行：自动重连开关 + 显示全部 -->
                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button x:Name="BtnConnect" Content="连接设备" Click="BtnConnect_Click" 
-                                    Style="{StaticResource LargeRoundedButtonStyle}" Margin="0,0,15,0"/>
+                            <ToggleButton x:Name="AutoReconnectToggle" 
+                                          Content="自动重连" 
+                                          Style="{StaticResource LargeRoundedToggleButtonStyle}"
+                                          Margin="0,0,15,0"/>
                             <ToggleButton x:Name="BtnShowAllData" Content="显示全部" 
                                           Checked="BtnShowAllData_Checked" 
                                           Unchecked="BtnShowAllData_Unchecked"
@@ -432,6 +439,7 @@
                                     Background="Transparent">
                                 <ListBox x:Name="DeviceList" 
                                          SelectionChanged="DeviceList_SelectionChanged"
+                                         MouseDoubleClick="DeviceList_MouseDoubleClick"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                          BorderThickness="0"
@@ -496,7 +504,7 @@
                 </Border>
             </GroupBox>
 
-            <!-- 实时数据表格 -->
+            <!-- 实时数据表格（将TargetNullValue改为空字符串） -->
             <GroupBox Header="实时数据" Grid.Row="2" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" 
                         BorderThickness="2" 
@@ -613,13 +621,24 @@
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderThickness="2"
+                                    <Border x:Name="DeviceRowBorder"
+                                            BorderThickness="2"
                                             BorderBrush="{StaticResource BorderSoftBrush}"
                                             CornerRadius="6"
                                             Padding="6,6,6,6"
                                             Margin="0,0,0,2"
                                             HorizontalAlignment="Stretch"
                                             Background="#F9F9F9">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Connected}" Value="False">
+                                                        <Setter Property="Background" Value="#F0F0F0"/>
+                                                        <Setter Property="Opacity" Value="0.7"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <Grid HorizontalAlignment="Stretch">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="120"/>
@@ -644,46 +663,56 @@
                                             <Border Grid.Column="9" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                             <Border Grid.Column="11" Background="#DDDDDD" VerticalAlignment="Stretch"/>
 
-                                            <TextBlock Grid.Column="0"
-                                                       Text="{Binding Alias}" 
-                                                       FontSize="13"
-                                                       Foreground="{StaticResource TextSoftBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,5,0"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding Alias}"
-                                                       MouseLeftButtonDown="DeviceName_MouseLeftButtonDown"/>
+                                            <!-- 设备名称 + 断开提示 -->
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Alias}" 
+                                                           FontSize="13"
+                                                           Foreground="{StaticResource TextSoftBrush}"
+                                                           Margin="0,0,5,0"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding Alias}"
+                                                           MouseLeftButtonDown="DeviceName_MouseLeftButtonDown"/>
+                                                <TextBlock x:Name="DisconnectedText" 
+                                                           Text=" (已断开)" 
+                                                           Foreground="Gray" FontSize="11" Margin="2,0,0,0"
+                                                           Visibility="Collapsed"/>
+                                            </StackPanel>
 
+                                            <!-- 心率：TargetNullValue改为空字符串 -->
                                             <TextBlock Grid.Column="2"
-                                                       Text="{Binding HR, StringFormat='{}{0}', TargetNullValue='--'}" 
+                                                       Text="{Binding HR, StringFormat='{}{0}', TargetNullValue=''}" 
                                                        FontSize="13"
                                                        Foreground="{StaticResource TextSoftBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,5,0"
                                                        HorizontalAlignment="Center"/>
+                                            <!-- RR：TargetNullValue改为空字符串 -->
                                             <TextBlock Grid.Column="4"
-                                                       Text="{Binding LastRR, StringFormat='{}{0}', TargetNullValue='--'}" 
+                                                       Text="{Binding LastRR, StringFormat='{}{0}', TargetNullValue=''}" 
                                                        FontSize="13"
                                                        Foreground="{StaticResource TextSoftBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,5,0"
                                                        HorizontalAlignment="Center"/>
+                                            <!-- SDNN：保留一位小数，TargetNullValue改为空字符串 -->
                                             <TextBlock Grid.Column="6"
-                                                       Text="{Binding LastSDNN, StringFormat='{}{0:F1}', TargetNullValue='--'}" 
+                                                       Text="{Binding LastSDNN, StringFormat='{}{0:F1}', TargetNullValue=''}" 
                                                        FontSize="13"
                                                        Foreground="{StaticResource TextSoftBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,5,0"
                                                        HorizontalAlignment="Center"/>
+                                            <!-- HRV：保留一位小数，TargetNullValue改为空字符串 -->
                                             <TextBlock Grid.Column="8"
-                                                       Text="{Binding LastHRV, StringFormat='{}{0:F1}', TargetNullValue='--'}" 
+                                                       Text="{Binding LastHRV, StringFormat='{}{0:F1}', TargetNullValue=''}" 
                                                        FontSize="13"
                                                        Foreground="{StaticResource TextSoftBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,5,0"
                                                        HorizontalAlignment="Center"/>
+                                            <!-- 电量：TargetNullValue改为空字符串 -->
                                             <TextBlock Grid.Column="10"
-                                                       Text="{Binding BatteryLevel, StringFormat='{}{0}', TargetNullValue='--'}" 
+                                                       Text="{Binding BatteryLevel, StringFormat='{}{0}', TargetNullValue=''}" 
                                                        FontSize="13"
                                                        Foreground="{StaticResource TextSoftBrush}"
                                                        VerticalAlignment="Center"
@@ -712,6 +741,12 @@
                                             </ComboBox>
                                         </Grid>
                                     </Border>
+                                    <!-- DataTemplate 级别的触发器，用于控制断开文本的可见性 -->
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding Connected}" Value="False">
+                                            <Setter TargetName="DisconnectedText" Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

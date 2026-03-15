@@ -34,11 +34,25 @@ namespace HeartRateMonitor
         private int? _lastRR;
         private int _selectedColorIndex;
         private bool _isVisible = true;
+        private bool _connected = true;
 
         public string Id { get; set; } = string.Empty;
         public string CleanName { get; set; } = string.Empty;
         public string Alias { get; set; } = string.Empty;
-        public bool Connected { get; set; }
+
+        public bool Connected
+        {
+            get => _connected;
+            set
+            {
+                if (_connected != value)
+                {
+                    _connected = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public BluetoothLEDevice? Device { get; set; }
         public GattCharacteristic? HeartRateChar { get; set; }
         public GattCharacteristic? BatteryChar { get; set; }
@@ -101,8 +115,13 @@ namespace HeartRateMonitor
             }
         }
 
-        public Queue<int> RRBuffer { get; set; } = new Queue<int>();
+        // 最后一次接收到心率数据的时间
         public DateTime LastHRTimestamp { get; set; }
+
+        // 连接事件记录（用于导出）
+        public List<string> ConnectionEvents { get; set; } = new List<string>();
+
+        public Queue<int> RRBuffer { get; set; } = new Queue<int>();
         public LineSeries? HrSeries { get; set; }
 
         // 历史数据队列（每秒记录）
@@ -137,16 +156,16 @@ namespace HeartRateMonitor
         private DateTime? _sessionStartTime = null;
         private readonly Queue<int> _timeLabels = new Queue<int>();
 
-        // 修改为彩虹七色
+        // 颜色数组（与XAML中的ColorOptions顺序一致）
         private static readonly OxyColor[] PredefinedColors = new OxyColor[]
-{
-    OxyColors.Red,
-    OxyColors.Orange,
-    OxyColors.Green,
-    OxyColors.LightBlue,
-    OxyColors.Purple,
-    OxyColors.Black
-};
+        {
+            OxyColors.Red,
+            OxyColors.Orange,
+            OxyColors.Green,
+            OxyColors.DodgerBlue,
+            OxyColors.Purple,
+            OxyColors.Black
+        };
 
         // 数据点上限（2小时 = 7200秒；可改为3小时 = 10800）
         private const int MaxDataPoints = 7200;
@@ -289,21 +308,18 @@ namespace HeartRateMonitor
             DebugMessage("扫描心率设备中...");
         }
 
-        private async void BtnConnect_Click(object sender, RoutedEventArgs e)
+        private async void DeviceList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (DeviceList.SelectedItem == null)
-            {
-                var dialog = new MessageDialog("请先在列表中选择一个设备。")
-                {
-                    Owner = this
-                };
-                dialog.ShowDialog();
-                return;
-            }
+            if (DeviceList.SelectedItem == null) return;
 
             var selected = DeviceList.SelectedItem as BluetoothLEAdvertisementReceivedEventArgs;
             if (selected == null) return;
 
+            await ConnectToDeviceAsync(selected);
+        }
+
+        private async Task ConnectToDeviceAsync(BluetoothLEAdvertisementReceivedEventArgs selected)
+        {
             _watcher?.Stop();
             DebugMessage($"正在连接 {selected.Advertisement.LocalName}...");
 
@@ -329,6 +345,7 @@ namespace HeartRateMonitor
                     devData = _devices[id];
                     devData.Connected = true;
                     devData.Device = device;
+                    devData.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 重新连接");
                 }
                 else
                 {
@@ -348,6 +365,7 @@ namespace HeartRateMonitor
                             Color = PredefinedColors[colorIndex]
                         }
                     };
+                    devData.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 连接成功");
 
                     devData.ColorChanged += (s, args) =>
                     {
@@ -371,6 +389,8 @@ namespace HeartRateMonitor
                     _devices[id] = devData;
                     _connectedDevices.Add(devData);
                 }
+
+                device.ConnectionStatusChanged += OnConnectionStatusChanged;
 
                 if (_sessionStartTime == null)
                 {
@@ -447,6 +467,157 @@ namespace HeartRateMonitor
                     Owner = this
                 };
                 dialog.ShowDialog();
+            }
+        }
+
+        private void OnConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        {
+            Dispatcher.Invoke(async () =>
+            {
+                var dev = _devices.Values.FirstOrDefault(d => d.Device == sender);
+                if (dev == null) return;
+
+                if (sender.ConnectionStatus == BluetoothConnectionStatus.Disconnected)
+                {
+                    DebugMessage($"设备 {dev.Alias} 断开连接");
+                    await HandleDeviceDisconnectedAsync(dev);
+                }
+            });
+        }
+
+        private async Task HandleDeviceDisconnectedAsync(DeviceData device)
+        {
+            if (device == null || !device.Connected) return;
+
+            device.Connected = false;
+            device.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 断开连接");
+
+            // 将实时数据置为 null，避免残留旧值
+            device.HR = null;
+            device.LastRR = null;
+            device.LastSDNN = null;
+            device.LastHRV = null;
+            device.BatteryLevel = null;
+
+            if (AutoReconnectToggle.IsChecked == true)
+            {
+                await TryReconnectAsync(device);
+            }
+        }
+
+        private async Task TryReconnectAsync(DeviceData device, int maxAttempts = 5, int delaySeconds = 3)
+        {
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                DebugMessage($"尝试重连设备 {device.Alias} 第 {attempt} 次...");
+                try
+                {
+                    var newDevice = await BluetoothLEDevice.FromIdAsync(device.Id);
+                    if (newDevice != null)
+                    {
+                        DebugMessage($"正在连接设备 {device.Alias}...");
+                        var servicesResult = await newDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+
+                        if (servicesResult.Status == GattCommunicationStatus.Success)
+                        {
+                            DebugMessage($"设备 {device.Alias} 已连接");
+
+                            if (device.Device != null)
+                            {
+                                device.Device.ConnectionStatusChanged -= OnConnectionStatusChanged;
+                            }
+
+                            device.Device = newDevice;
+                            device.Device.ConnectionStatusChanged += OnConnectionStatusChanged;
+
+                            await ReconnectServices(device);
+
+                            device.Connected = true;
+                            device.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 重连成功");
+                            DebugMessage($"设备 {device.Alias} 重连成功");
+                            return;
+                        }
+                        else
+                        {
+                            DebugMessage($"获取服务失败: {servicesResult.Status}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DebugMessage($"重连失败: {ex.Message}");
+                }
+
+                await Task.Delay(delaySeconds * 1000);
+            }
+
+            device.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 重连失败，已放弃");
+            DebugMessage($"设备 {device.Alias} 重连失败，已放弃");
+        }
+
+        private async Task ReconnectServices(DeviceData device)
+        {
+            if (device.Device == null) return;
+
+            if (device.HeartRateChar != null)
+            {
+                device.HeartRateChar.ValueChanged -= OnHeartRateValueChanged;
+                device.HeartRateChar = null;
+            }
+            if (device.BatteryChar != null)
+            {
+                device.BatteryChar.ValueChanged -= OnBatteryValueChanged;
+                device.BatteryChar = null;
+            }
+
+            var servicesResult = await device.Device.GetGattServicesAsync(BluetoothCacheMode.Uncached);
+            if (servicesResult.Status != GattCommunicationStatus.Success)
+            {
+                DebugMessage($"重连时获取服务失败: {servicesResult.Status}");
+                return;
+            }
+
+            var hrService = servicesResult.Services.FirstOrDefault(s => s.Uuid == HeartRateServiceUuid);
+            if (hrService != null)
+            {
+                var charsResult = await hrService.GetCharacteristicsAsync();
+                if (charsResult.Status == GattCommunicationStatus.Success)
+                {
+                    device.HeartRateChar = charsResult.Characteristics.FirstOrDefault(c => c.Uuid == HeartRateMeasurementCharacteristicUuid);
+                    if (device.HeartRateChar != null)
+                    {
+                        device.HeartRateChar.ValueChanged += OnHeartRateValueChanged;
+                        var status = await device.HeartRateChar.WriteClientCharacteristicConfigurationDescriptorAsync(
+                            GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                        if (status == GattCommunicationStatus.Success)
+                            DebugMessage("重连后心率通知订阅成功。");
+                        else
+                            DebugMessage($"重连后心率通知订阅失败: {status}");
+                    }
+                }
+            }
+
+            var batteryService = servicesResult.Services.FirstOrDefault(s => s.Uuid == BatteryServiceUuid);
+            if (batteryService != null)
+            {
+                var charsResult = await batteryService.GetCharacteristicsAsync();
+                if (charsResult.Status == GattCommunicationStatus.Success)
+                {
+                    device.BatteryChar = charsResult.Characteristics.FirstOrDefault(c => c.Uuid == BatteryLevelCharacteristicUuid);
+                    if (device.BatteryChar != null)
+                    {
+                        var val = await device.BatteryChar.ReadValueAsync();
+                        if (val.Status == GattCommunicationStatus.Success)
+                        {
+                            var reader = DataReader.FromBuffer(val.Value);
+                            device.BatteryLevel = reader.ReadByte();
+                        }
+
+                        device.BatteryChar.ValueChanged += OnBatteryValueChanged;
+                        await device.BatteryChar.WriteClientCharacteristicConfigurationDescriptorAsync(
+                            GattClientCharacteristicConfigurationDescriptorValue.Notify);
+                    }
+                }
             }
         }
 
@@ -552,63 +723,81 @@ namespace HeartRateMonitor
 
             foreach (var dev in _connectedDevices)
             {
-                var rrList = dev.RRBuffer.ToList();
-                var filteredRR = FilterRRIntervals(rrList);
+                // 判断这一秒是否有新数据
+                bool hasNewDataThisSecond = dev.LastHRTimestamp >= now.AddSeconds(-1);
 
-                if (filteredRR.Count >= 2)
+                // 计算 HRV（仅当有数据且设备连接时）
+                if (dev.Connected)
                 {
-                    int n = filteredRR.Count;
-                    double sum = 0;
-                    double sumSq = 0;
-                    double sumSqDiff = 0;
-                    for (int i = 0; i < n; i++)
+                    var rrList = dev.RRBuffer.ToList();
+                    var filteredRR = FilterRRIntervals(rrList);
+
+                    if (filteredRR.Count >= 2)
                     {
-                        int val = filteredRR[i];
-                        sum += val;
-                        sumSq += (double)val * val;
-                        if (i > 0)
+                        int n = filteredRR.Count;
+                        double sum = 0;
+                        double sumSq = 0;
+                        double sumSqDiff = 0;
+                        for (int i = 0; i < n; i++)
                         {
-                            double diff = val - filteredRR[i - 1];
-                            sumSqDiff += diff * diff;
+                            int val = filteredRR[i];
+                            sum += val;
+                            sumSq += (double)val * val;
+                            if (i > 0)
+                            {
+                                double diff = val - filteredRR[i - 1];
+                                sumSqDiff += diff * diff;
+                            }
                         }
+                        double sdnn = Math.Sqrt((sumSq - sum * sum / n) / n);
+                        double hrv = Math.Sqrt(sumSqDiff / (n - 1));
+                        dev.LastSDNN = sdnn;
+                        dev.LastHRV = hrv;
                     }
-                    double sdnn = Math.Sqrt((sumSq - sum * sum / n) / n);
-                    double hrv = Math.Sqrt(sumSqDiff / (n - 1));
-                    dev.LastSDNN = sdnn;
-                    dev.LastHRV = hrv;
+                    else
+                    {
+                        dev.LastSDNN = null;
+                        dev.LastHRV = null;
+                    }
+
+                    if (dev.HR.HasValue && dev.HrSeries != null && hasNewDataThisSecond) // 只在有数据时添加图表点
+                    {
+                        dev.HrSeries.Points.Add(new DataPoint(currentSeconds, dev.HR.Value));
+                        if (dev.HrSeries.Points.Count > MaxDataPoints)
+                            dev.HrSeries.Points.RemoveAt(0);
+                    }
+                }
+
+                // 记录历史数据（有数据则记录值，否则记录 null）
+                if (hasNewDataThisSecond)
+                {
+                    dev.HRData.Enqueue(dev.HR);
+                    dev.RRData.Enqueue(dev.LastRR);
+                    dev.SDNNData.Enqueue(dev.LastSDNN);
+                    dev.HRVData.Enqueue(dev.LastHRV);
                 }
                 else
                 {
-                    dev.LastSDNN = null;
-                    dev.LastHRV = null;
+                    dev.HRData.Enqueue(null);
+                    dev.RRData.Enqueue(null);
+                    dev.SDNNData.Enqueue(null);
+                    dev.HRVData.Enqueue(null);
                 }
 
-                if (dev.HR.HasValue && dev.HrSeries != null)
-                {
-                    dev.HrSeries.Points.Add(new DataPoint(currentSeconds, dev.HR.Value));
-                    if (dev.HrSeries.Points.Count > MaxDataPoints)
-                        dev.HrSeries.Points.RemoveAt(0);
-                }
-
-                dev.HRData.Enqueue(dev.HR);
-                if (dev.HRData.Count > MaxDataPoints)
-                    dev.HRData.Dequeue();
-
-                dev.RRData.Enqueue(dev.LastRR);
-                if (dev.RRData.Count > MaxDataPoints)
-                    dev.RRData.Dequeue();
-
-                dev.SDNNData.Enqueue(dev.LastSDNN);
-                if (dev.SDNNData.Count > MaxDataPoints)
-                    dev.SDNNData.Dequeue();
-
-                dev.HRVData.Enqueue(dev.LastHRV);
-                if (dev.HRVData.Count > MaxDataPoints)
-                    dev.HRVData.Dequeue();
-
+                // 电池数据独立处理（保留最后已知值）
                 dev.BatteryData.Enqueue(dev.BatteryLevel);
                 if (dev.BatteryData.Count > MaxDataPoints)
                     dev.BatteryData.Dequeue();
+
+                // 限制各队列长度
+                while (dev.HRData.Count > MaxDataPoints)
+                    dev.HRData.Dequeue();
+                while (dev.RRData.Count > MaxDataPoints)
+                    dev.RRData.Dequeue();
+                while (dev.SDNNData.Count > MaxDataPoints)
+                    dev.SDNNData.Dequeue();
+                while (dev.HRVData.Count > MaxDataPoints)
+                    dev.HRVData.Dequeue();
             }
 
             UpdateXAxisRange();
@@ -663,6 +852,7 @@ namespace HeartRateMonitor
 
             if (device.Device != null)
             {
+                device.Device.ConnectionStatusChanged -= OnConnectionStatusChanged;
                 try
                 {
                     device.Device.Dispose();
@@ -682,6 +872,13 @@ namespace HeartRateMonitor
             device.Device = null;
             device.HeartRateChar = null;
             device.BatteryChar = null;
+
+            // 清除实时数据
+            device.HR = null;
+            device.LastRR = null;
+            device.LastSDNN = null;
+            device.LastHRV = null;
+            device.BatteryLevel = null;
 
             DebugMessage($"设备 {device.Alias} 已断开。");
         }
@@ -844,6 +1041,14 @@ namespace HeartRateMonitor
                     var lastBattery = dev.BatteryData.LastOrDefault();
                     string batteryStr = lastBattery.HasValue ? lastBattery.Value.ToString() + "%" : "--";
                     csv.AppendLine($"# Device: {dev.Alias}, Battery: {batteryStr},");
+
+                    if (dev.ConnectionEvents.Count > 0)
+                    {
+                        foreach (var evt in dev.ConnectionEvents)
+                        {
+                            csv.AppendLine($"# Event: {evt}");
+                        }
+                    }
                 }
             }
             else // 当前快照
@@ -989,7 +1194,11 @@ namespace HeartRateMonitor
                         {
                             dev.BatteryChar.ValueChanged -= OnBatteryValueChanged;
                         }
-                        dev.Device?.Dispose();
+                        if (dev.Device != null)
+                        {
+                            dev.Device.ConnectionStatusChanged -= OnConnectionStatusChanged;
+                            dev.Device.Dispose();
+                        }
                     }
                     catch { }
                 }
