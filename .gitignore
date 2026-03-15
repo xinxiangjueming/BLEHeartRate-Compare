@@ -1,0 +1,27 @@
+## Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+## NuGet
+packages/
+*.nupkg
+
+## Publish
+PublishProfiles/
+*.pubxml.user
+
+## Others
+*.Cache
+*.dbmdl
+*.log
+*.tmp

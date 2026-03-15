@@ -19,12 +19,6 @@ using OxyPlot.Series;
 
 namespace HeartRateMonitor
 {
-    public class RRItem
-    {
-        public DateTime Timestamp { get; set; }
-        public int RRms { get; set; }
-    }
-
     public class ColorOption
     {
         public string Name { get; set; } = string.Empty;
@@ -92,16 +86,17 @@ namespace HeartRateMonitor
             }
         }
 
-        public List<RRItem> RRBuffer { get; set; } = new List<RRItem>();
+        // RRBuffer 改为 Queue<int>，仅存储RR毫秒值
+        public Queue<int> RRBuffer { get; set; } = new Queue<int>();
         public DateTime LastHRTimestamp { get; set; }
         public LineSeries? HrSeries { get; set; }
 
-        // 用于导出 CSV 的历史数据（每秒记录）
-        public List<int?> HRData { get; set; } = new List<int?>();
-        public List<int?> RRData { get; set; } = new List<int?>();
-        public List<double?> SDNNData { get; set; } = new List<double?>();
-        public List<double?> HRVData { get; set; } = new List<double?>();
-        public List<int?> BatteryData { get; set; } = new List<int?>();
+        // 历史数据队列（每秒记录）
+        public Queue<int?> HRData { get; set; } = new Queue<int?>();
+        public Queue<int?> RRData { get; set; } = new Queue<int?>();
+        public Queue<double?> SDNNData { get; set; } = new Queue<double?>();
+        public Queue<double?> HRVData { get; set; } = new Queue<double?>();
+        public Queue<int?> BatteryData { get; set; } = new Queue<int?>();
 
         public bool IsImported { get; set; } = false;
 
@@ -125,7 +120,7 @@ namespace HeartRateMonitor
 
         private PlotModel _plotModel = null!;
         private DateTime? _sessionStartTime = null;
-        private readonly List<int> _timeLabels = new List<int>();
+        private readonly Queue<int> _timeLabels = new Queue<int>();
 
         private static readonly OxyColor[] PredefinedColors = new OxyColor[]
         {
@@ -136,8 +131,10 @@ namespace HeartRateMonitor
             OxyColors.DarkBlue
         };
 
-        // 2小时数据限制（2 * 60 * 60 = 7200）
+        // 数据点上限（2小时 = 7200秒；可改为3小时 = 10800）
         private const int MaxDataPoints = 7200;
+        // RRBuffer 上限（按每秒1个RR估算，实际可能更多，7200足够；可适当增大）
+        private const int MaxRRPoints = 7200;
 
         public PlotModel PlotModel
         {
@@ -473,17 +470,45 @@ namespace HeartRateMonitor
 
                     if (rrMs >= 200 && rrMs <= 2000)
                     {
-                        dev.RRBuffer.Add(new RRItem { Timestamp = DateTime.Now, RRms = rrMs });
+                        dev.RRBuffer.Enqueue(rrMs);
+                        // 限制RRBuffer大小
+                        while (dev.RRBuffer.Count > MaxRRPoints)
+                            dev.RRBuffer.Dequeue();
                     }
                 }
-
-                // 不再限制RRBuffer大小，存储全部历史RR数据
-                // 但为了防止内存无限增长，可设置一个极大上限（如20000），此处不设限
             }
 
-            var lastRR = dev.RRBuffer.LastOrDefault()?.RRms;
-            if (lastRR.HasValue)
-                dev.LastRR = lastRR.Value;
+            var lastRR = dev.RRBuffer.LastOrDefault();
+            if (lastRR != 0)
+                dev.LastRR = lastRR;
+        }
+
+        // 新增：RR间期异常检测，去除孤立异常点（与前后差异均大于300ms）
+        private List<int> FilterRRIntervals(List<int> rrList)
+        {
+            if (rrList.Count < 3) return rrList; // 不足以检测孤立点
+
+            var filtered = new List<int>();
+            int n = rrList.Count;
+            for (int i = 0; i < n; i++)
+            {
+                bool keep = true;
+                // 对于非边界点，检查与前后点的差异
+                if (i > 0 && i < n - 1)
+                {
+                    int prevDiff = Math.Abs(rrList[i] - rrList[i - 1]);
+                    int nextDiff = Math.Abs(rrList[i] - rrList[i + 1]);
+                    if (prevDiff > 300 && nextDiff > 300)
+                    {
+                        keep = false; // 孤立异常，剔除
+                    }
+                }
+                if (keep)
+                {
+                    filtered.Add(rrList[i]);
+                }
+            }
+            return filtered;
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -494,66 +519,75 @@ namespace HeartRateMonitor
             double currentSeconds = (now - _sessionStartTime!.Value).TotalSeconds;
 
             int currentSecond = (int)currentSeconds;
-            _timeLabels.Add(currentSecond);
-            // 限制时间标签数量为2小时
+            _timeLabels.Enqueue(currentSecond);
             if (_timeLabels.Count > MaxDataPoints)
-                _timeLabels.RemoveAt(0);
+                _timeLabels.Dequeue();
 
             foreach (var dev in _connectedDevices)
             {
-                // 使用全部RRBuffer数据计算SDNN和HRV
-                var allRRs = dev.RRBuffer.Select(r => r.RRms).ToList();
-                if (allRRs.Count >= 2)
-                {
-                    // 计算RMSSD (HRV)
-                    double sumSqDiff = 0;
-                    for (int i = 0; i < allRRs.Count - 1; i++)
-                    {
-                        double diff = allRRs[i + 1] - allRRs[i];
-                        sumSqDiff += diff * diff;
-                    }
-                    dev.LastHRV = Math.Sqrt(sumSqDiff / (allRRs.Count - 1));
+                // 获取原始RR列表
+                var rrList = dev.RRBuffer.ToList();
 
-                    // 计算SDNN
-                    double avg = allRRs.Average();
-                    double sumSq = allRRs.Sum(r => Math.Pow(r - avg, 2));
-                    dev.LastSDNN = Math.Sqrt(sumSq / allRRs.Count);
+                // 应用异常检测过滤
+                var filteredRR = FilterRRIntervals(rrList);
+
+                if (filteredRR.Count >= 2)
+                {
+                    int n = filteredRR.Count;
+                    double sum = 0;
+                    double sumSq = 0;
+                    double sumSqDiff = 0;
+                    for (int i = 0; i < n; i++)
+                    {
+                        int val = filteredRR[i];
+                        sum += val;
+                        sumSq += (double)val * val;
+                        if (i > 0)
+                        {
+                            double diff = val - filteredRR[i - 1];
+                            sumSqDiff += diff * diff;
+                        }
+                    }
+                    // SDNN = sqrt( (sumSq - sum^2/n) / n )
+                    double sdnn = Math.Sqrt((sumSq - sum * sum / n) / n);
+                    double hrv = Math.Sqrt(sumSqDiff / (n - 1));
+                    dev.LastSDNN = sdnn;
+                    dev.LastHRV = hrv;
                 }
                 else
                 {
-                    dev.LastHRV = null;
                     dev.LastSDNN = null;
+                    dev.LastHRV = null;
                 }
 
                 // 添加心率点到图表
                 if (dev.HR.HasValue && dev.HrSeries != null)
                 {
                     dev.HrSeries.Points.Add(new DataPoint(currentSeconds, dev.HR.Value));
-                    // 限制图表点数量为2小时
                     if (dev.HrSeries.Points.Count > MaxDataPoints)
                         dev.HrSeries.Points.RemoveAt(0);
                 }
 
-                // 记录每秒的历史数据，并限制数量为2小时
-                dev.HRData.Add(dev.HR);
+                // 更新历史数据队列
+                dev.HRData.Enqueue(dev.HR);
                 if (dev.HRData.Count > MaxDataPoints)
-                    dev.HRData.RemoveAt(0);
+                    dev.HRData.Dequeue();
 
-                dev.RRData.Add(dev.LastRR);
+                dev.RRData.Enqueue(dev.LastRR);
                 if (dev.RRData.Count > MaxDataPoints)
-                    dev.RRData.RemoveAt(0);
+                    dev.RRData.Dequeue();
 
-                dev.SDNNData.Add(dev.LastSDNN);
+                dev.SDNNData.Enqueue(dev.LastSDNN);
                 if (dev.SDNNData.Count > MaxDataPoints)
-                    dev.SDNNData.RemoveAt(0);
+                    dev.SDNNData.Dequeue();
 
-                dev.HRVData.Add(dev.LastHRV);
+                dev.HRVData.Enqueue(dev.LastHRV);
                 if (dev.HRVData.Count > MaxDataPoints)
-                    dev.HRVData.RemoveAt(0);
+                    dev.HRVData.Dequeue();
 
-                dev.BatteryData.Add(dev.BatteryLevel);
+                dev.BatteryData.Enqueue(dev.BatteryLevel);
                 if (dev.BatteryData.Count > MaxDataPoints)
-                    dev.BatteryData.RemoveAt(0);
+                    dev.BatteryData.Dequeue();
             }
 
             UpdateXAxisRange();
@@ -712,39 +746,98 @@ namespace HeartRateMonitor
         {
             var csv = new System.Text.StringBuilder();
 
-            var headers = new List<string>();
+            // 如果导出类型是历史数据
             if (exportType == "历史数据")
             {
-                headers.Add("时间");
+                // 确定要导出的字段（排除“设备”和“电量”）
+                var timeSeriesFields = fields.Where(f => f != "设备" && f != "电量").ToList();
+
+                // 构建表头：时间列 + 每个设备的每个字段
+                var headers = new List<string> { "时间" };
                 foreach (var dev in _connectedDevices)
                 {
-                    foreach (var field in fields)
+                    foreach (var field in timeSeriesFields)
                     {
-                        if (field != "设备")
-                            headers.Add($"{dev.Alias}_{field}");
+                        headers.Add($"{dev.Alias}_{field}");
                     }
                 }
                 csv.AppendLine(string.Join(",", headers));
 
-                int dataCount = _timeLabels.Count;
+                // 将队列转换为数组以便索引访问
+                var timeArray = _timeLabels.ToArray();
+                int dataCount = timeArray.Length;
+
+                // 预取每个设备的数据数组
+                var devDataArrays = _connectedDevices.Select(dev => new
+                {
+                    HR = dev.HRData.ToArray(),
+                    RR = dev.RRData.ToArray(),
+                    SDNN = dev.SDNNData.ToArray(),
+                    HRV = dev.HRVData.ToArray(),
+                }).ToList();
+
                 for (int i = 0; i < dataCount; i++)
                 {
-                    var row = new List<string> { _timeLabels[i] + "s" };
+                    var row = new List<string> { timeArray[i] + "s" };
+                    int devIndex = 0;
                     foreach (var dev in _connectedDevices)
                     {
-                        foreach (var field in fields)
+                        var arrays = devDataArrays[devIndex];
+                        foreach (var field in timeSeriesFields)
                         {
-                            if (field == "设备") continue;
-                            string value = GetHistoricalFieldValue(dev, field, i);
+                            string value = "";
+                            switch (field)
+                            {
+                                case "心率":
+                                    value = (i < arrays.HR.Length && arrays.HR[i].HasValue) ? arrays.HR[i].Value.ToString() : "";
+                                    break;
+                                case "RR":
+                                    value = (i < arrays.RR.Length && arrays.RR[i].HasValue) ? arrays.RR[i].Value.ToString() : "";
+                                    break;
+                                case "SDNN":
+                                    value = (i < arrays.SDNN.Length && arrays.SDNN[i].HasValue) ? arrays.SDNN[i].Value.ToString("F1") : "";
+                                    break;
+                                case "HRV":
+                                    value = (i < arrays.HRV.Length && arrays.HRV[i].HasValue) ? arrays.HRV[i].Value.ToString("F1") : "";
+                                    break;
+                            }
                             row.Add(value);
                         }
+                        devIndex++;
                     }
                     csv.AppendLine(string.Join(",", row));
+                }
+
+                // 添加 Summary 部分
+                csv.AppendLine(); // 空行
+                csv.AppendLine("# Summary,,");
+                csv.AppendLine($"# Total Duration: {dataCount}s,,");
+
+                // 对每个设备输出心率统计和电池信息
+                foreach (var dev in _connectedDevices)
+                {
+                    var hrArray = dev.HRData.Where(v => v.HasValue).Select(v => v.Value).ToArray();
+                    if (hrArray.Length > 0)
+                    {
+                        double avg = hrArray.Average();
+                        int max = hrArray.Max();
+                        int min = hrArray.Min();
+                        csv.AppendLine($"# Device: {dev.Alias}, Avg HR: {avg:F0} bpm, Max: {max} bpm, Min: {min} bpm");
+                    }
+                    else
+                    {
+                        csv.AppendLine($"# Device: {dev.Alias}, Avg HR: --, Max: --, Min: --");
+                    }
+
+                    // 电池信息（取最新值）
+                    var lastBattery = dev.BatteryData.LastOrDefault();
+                    string batteryStr = lastBattery.HasValue ? lastBattery.Value.ToString() + "%" : "--";
+                    csv.AppendLine($"# Device: {dev.Alias}, Battery: {batteryStr},");
                 }
             }
             else // 当前快照
             {
-                headers.Add("设备");
+                var headers = new List<string> { "设备" };
                 headers.AddRange(fields.Where(f => f != "设备"));
                 csv.AppendLine(string.Join(",", headers));
 
@@ -776,27 +869,6 @@ namespace HeartRateMonitor
                     Owner = this
                 };
                 successDialog.ShowDialog();
-            }
-        }
-
-        private string GetHistoricalFieldValue(DeviceData dev, string field, int index)
-        {
-            if (index >= dev.HRData.Count) return "";
-
-            switch (field)
-            {
-                case "心率":
-                    return dev.HRData[index]?.ToString() ?? "";
-                case "RR":
-                    return (index < dev.RRData.Count && dev.RRData[index].HasValue) ? dev.RRData[index].Value.ToString() : "";
-                case "SDNN":
-                    return (index < dev.SDNNData.Count && dev.SDNNData[index].HasValue) ? dev.SDNNData[index].Value.ToString("F1") : "";
-                case "HRV":
-                    return (index < dev.HRVData.Count && dev.HRVData[index].HasValue) ? dev.HRVData[index].Value.ToString("F1") : "";
-                case "电量":
-                    return (index < dev.BatteryData.Count && dev.BatteryData[index].HasValue) ? dev.BatteryData[index].Value.ToString() : "";
-                default:
-                    return "";
             }
         }
 
@@ -849,6 +921,46 @@ namespace HeartRateMonitor
                 PlotModel.InvalidatePlot(true);
                 DebugMessage("图表已清空，计时重新开始。");
             }
+        }
+
+        // 窗口关闭时询问是否导出数据（弹出导出选项对话框）
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // 如果有已连接的设备，询问是否导出数据
+            if (_connectedDevices.Count > 0)
+            {
+                var dialog = new ConfirmDialog("是否在关闭前导出数据？")
+                {
+                    Owner = this,
+                    Title = "关闭确认"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    // 打开导出选项对话框，让用户自由选择
+                    var exportDialog = new ExportOptionsDialog(_connectedDevices)
+                    {
+                        Owner = this
+                    };
+                    if (exportDialog.ShowDialog() == true)
+                    {
+                        try
+                        {
+                            ExportData(exportDialog.ExportType, exportDialog.SelectedFields);
+                        }
+                        catch (Exception ex)
+                        {
+                            var errorDialog = new MessageDialog($"导出数据时出错：{ex.Message}")
+                            {
+                                Owner = this
+                            };
+                            errorDialog.ShowDialog();
+                        }
+                    }
+                }
+            }
+
+            base.OnClosing(e);
         }
 
         protected override void OnClosed(EventArgs e)

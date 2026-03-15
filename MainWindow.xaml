@@ -227,7 +227,7 @@
             </Setter>
         </Style>
 
-        <!-- 圆角ComboBox样式（优化点击区域） -->
+        <!-- 圆角ComboBox样式（背景已柔和） -->
         <Style x:Key="RoundedComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background" Value="{StaticResource BackgroundSoftBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
@@ -250,13 +250,12 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <!-- 设置 HorizontalAlignment="Stretch" 使点击区域覆盖整个可用宽度 -->
                                     <ContentPresenter x:Name="contentPresenter" 
                                                       Margin="{TemplateBinding Padding}"
                                                       Content="{TemplateBinding SelectionBoxItem}"
                                                       ContentTemplate="{TemplateBinding ItemTemplate}"
                                                       VerticalAlignment="Center"
-                                                      HorizontalAlignment="Stretch"/>
+                                                      HorizontalAlignment="Left"/>
                                     <ToggleButton x:Name="toggleButton" 
                                                   Grid.Column="1"
                                                   IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
@@ -637,7 +636,6 @@
                                                        VerticalAlignment="Center"
                                                        HorizontalAlignment="Center"/>
 
-                                            <!-- 颜色选择：宽度增加至70，方便点击 -->
                                             <ComboBox Grid.Column="12"
                                                       ItemsSource="{Binding Source={StaticResource ColorOptions}}"
                                                       SelectedIndex="{Binding SelectedColorIndex}"
