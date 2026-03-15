@@ -1,4 +1,6 @@
 # BLEHeartRate-Compare
+<img width="1915" height="991" alt="image" src="https://github.com/user-attachments/assets/41017c84-32a2-452b-a45d-062b2657cb1b" />
+
 - **多设备同时连接**：支持同时连接多个蓝牙心率设备（如心率带、手环等），实时显示各设备数据
 - **实时心率曲线**：每个设备对应一条彩色曲线，可直观对比心率变化趋势
 - **数据显示表格**：实时显示设备的心率、RR间期、SDNN、HRV、电量等信息
