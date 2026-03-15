@@ -20,10 +20,11 @@
         <!-- 颜色选项列表（用于绑定） -->
         <x:Array x:Key="ColorOptions" Type="local:ColorOption">
             <local:ColorOption Name="红色" Color="#FF0000"/>
-            <local:ColorOption Name="深绿" Color="#006400"/>
+            <local:ColorOption Name="橙色" Color="#FFA500"/>
+            <local:ColorOption Name="绿色" Color="#00FF00"/>
+            <local:ColorOption Name="品蓝" Color="#0000FF"/>
             <local:ColorOption Name="紫色" Color="#800080"/>
             <local:ColorOption Name="黑色" Color="#000000"/>
-            <local:ColorOption Name="深蓝" Color="#00008B"/>
         </x:Array>
 
         <!-- OxyColor 转 Brush 转换器 -->
@@ -312,7 +313,7 @@
             </Setter>
         </Style>
 
-        <!-- 新增：圆角复选框样式，应用于设备图例 -->
+        <!-- 圆角复选框样式 -->
         <Style x:Key="RoundedCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="#CCCCCC"/>
@@ -327,7 +328,6 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <!-- 复选框框（带圆角） -->
                             <Border x:Name="CheckBoxBorder"
                                     Width="16" Height="16"
                                     Background="{TemplateBinding Background}"
@@ -342,7 +342,6 @@
                                       StrokeThickness="2"
                                       Visibility="Collapsed"/>
                             </Border>
-                            <!-- 内容（颜色圆点+文字） -->
                             <ContentPresenter x:Name="contentPresenter"
                                               Grid.Column="1"
                                               Content="{TemplateBinding Content}"
@@ -753,7 +752,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- 设备图例行（应用圆角复选框样式） -->
+            <!-- 设备图例行 -->
             <Border Grid.Row="1" Margin="0,0,0,10" Padding="8" Background="#F0F0F0" CornerRadius="6">
                 <ItemsControl x:Name="DeviceLegend" ItemsSource="{Binding ConnectedDevices, RelativeSource={RelativeSource AncestorType=Window}}">
                     <ItemsControl.ItemsPanel>

@@ -33,7 +33,7 @@ namespace HeartRateMonitor
         private double? _lastHRV;
         private int? _lastRR;
         private int _selectedColorIndex;
-        private bool _isVisible = true;  // 新增：曲线可见性
+        private bool _isVisible = true;
 
         public string Id { get; set; } = string.Empty;
         public string CleanName { get; set; } = string.Empty;
@@ -87,7 +87,6 @@ namespace HeartRateMonitor
             }
         }
 
-        // 新增：曲线可见性属性
         public bool IsVisible
         {
             get => _isVisible;
@@ -116,7 +115,7 @@ namespace HeartRateMonitor
         public bool IsImported { get; set; } = false;
 
         public event EventHandler? ColorChanged;
-        public event EventHandler? VisibilityChanged;  // 新增：可见性变化事件
+        public event EventHandler? VisibilityChanged;
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name ?? string.Empty));
@@ -138,14 +137,16 @@ namespace HeartRateMonitor
         private DateTime? _sessionStartTime = null;
         private readonly Queue<int> _timeLabels = new Queue<int>();
 
+        // 修改为彩虹七色
         private static readonly OxyColor[] PredefinedColors = new OxyColor[]
-        {
-            OxyColors.Red,
-            OxyColors.DarkGreen,
-            OxyColors.Purple,
-            OxyColors.Black,
-            OxyColors.DarkBlue
-        };
+{
+    OxyColors.Red,
+    OxyColors.Orange,
+    OxyColors.Green,
+    OxyColors.LightBlue,
+    OxyColors.Purple,
+    OxyColors.Black
+};
 
         // 数据点上限（2小时 = 7200秒；可改为3小时 = 10800）
         private const int MaxDataPoints = 7200;
@@ -157,7 +158,6 @@ namespace HeartRateMonitor
             set { _plotModel = value; OnPropertyChanged(); }
         }
 
-        // 公开已连接设备集合，供图例绑定
         public ObservableCollection<DeviceData> ConnectedDevices => _connectedDevices;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -171,7 +171,6 @@ namespace HeartRateMonitor
 
             InitializePlotModel();
             DevicesDataView.ItemsSource = _connectedDevices;
-            // 图例绑定已在 XAML 中设置 ItemsSource="{Binding ConnectedDevices, RelativeSource={RelativeSource AncestorType=Window}}"
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -264,7 +263,6 @@ namespace HeartRateMonitor
             _watcher?.Stop();
 
             _watcher = new BluetoothLEAdvertisementWatcher();
-            // 设置过滤器：只扫描包含心率服务UUID的设备
             _watcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(HeartRateServiceUuid);
             _watcher.ScanningMode = BluetoothLEScanningMode.Active;
 
@@ -351,7 +349,6 @@ namespace HeartRateMonitor
                         }
                     };
 
-                    // 订阅颜色变化事件
                     devData.ColorChanged += (s, args) =>
                     {
                         if (s is DeviceData d && d.HrSeries != null)
@@ -361,7 +358,6 @@ namespace HeartRateMonitor
                         }
                     };
 
-                    // 新增：订阅可见性变化事件
                     devData.VisibilityChanged += (s, args) =>
                     {
                         if (s is DeviceData d && d.HrSeries != null)
@@ -516,7 +512,6 @@ namespace HeartRateMonitor
                 dev.LastRR = lastRR;
         }
 
-        // RR间期异常检测
         private List<int> FilterRRIntervals(List<int> rrList)
         {
             if (rrList.Count < 3) return rrList;
