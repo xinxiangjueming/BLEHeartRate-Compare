@@ -22,4 +22,7 @@ PublishProfiles/*.user
 *.Cache
 *.dbmdl
 *.log
-*.tmp
+*.tmp"bin/" 
+"obj/" 
+"*.user" 
+"*.pubxml.user" 
