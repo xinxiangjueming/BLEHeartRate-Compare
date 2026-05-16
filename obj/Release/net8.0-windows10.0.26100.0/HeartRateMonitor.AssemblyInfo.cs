@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HeartRateMonitor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b1d79c78cc4702e9a8f64b4726425489cf505c3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b653c4b4ad1880493870f556d384a844b2c40b54")]
 [assembly: System.Reflection.AssemblyProductAttribute("HeartRateMonitor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HeartRateMonitor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
