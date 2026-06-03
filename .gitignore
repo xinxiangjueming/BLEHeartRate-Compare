@@ -17,12 +17,10 @@ packages/
 *.nupkg
 
 ## Publish
-PublishProfiles/*.user
+PublishProfiles/*.pubxml.user
+
 ## Others
 *.Cache
 *.dbmdl
 *.log
-*.tmp"bin/" 
-"obj/" 
-"*.user" 
-"*.pubxml.user" 
+*.tmp
