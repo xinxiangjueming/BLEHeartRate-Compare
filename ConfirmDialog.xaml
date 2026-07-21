@@ -11,8 +11,8 @@
         ShowInTaskbar="False"
         Topmost="True">
 
-    <Border Background="#FEFEFE"
-            BorderBrush="#DDDDDD"
+    <Border Background="{DynamicResource WindowBackgroundBrush}"
+            BorderBrush="{DynamicResource BorderSoftBrush}"
             BorderThickness="2"
             CornerRadius="12"
             Padding="20">
@@ -23,10 +23,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="{Binding ConfirmTitle, Source={StaticResource Strings}}" 
-                       FontSize="20" 
-                       FontWeight="Bold" 
-                       Foreground="#222222"
+            <TextBlock Text="{Binding ConfirmTitle, Source={StaticResource Strings}}"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource TitleTextSoftBrush}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,15"/>
 
@@ -34,7 +34,7 @@
                        Grid.Row="1"
                        Text="确定要断开设备连接吗？"
                        FontSize="18"
-                       Foreground="#333333"
+                       Foreground="{DynamicResource TextSoftBrush}"
                        TextWrapping="Wrap"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
@@ -44,14 +44,14 @@
                         Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Margin="0,15,0,0">
-                <Button x:Name="YesButton" 
-                        Content="{Binding BtnYes, Source={StaticResource Strings}}" 
-                        Width="80" 
-                        Height="35" 
+                <Button x:Name="YesButton"
+                        Content="{Binding BtnYes, Source={StaticResource Strings}}"
+                        Width="80"
+                        Height="35"
                         Margin="0,0,15,0"
-                        Background="#F5F5F5"
-                        Foreground="#333333"
-                        BorderBrush="#DDDDDD"
+                        Background="{DynamicResource DefaultButtonBrush}"
+                        Foreground="{DynamicResource TextSoftBrush}"
+                        BorderBrush="{DynamicResource BorderSoftBrush}"
                         BorderThickness="1"
                         Click="YesButton_Click">
                     <Button.Resources>
@@ -60,13 +60,13 @@
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="NoButton" 
-                        Content="{Binding BtnNo, Source={StaticResource Strings}}" 
-                        Width="80" 
+                <Button x:Name="NoButton"
+                        Content="{Binding BtnNo, Source={StaticResource Strings}}"
+                        Width="80"
                         Height="35"
-                        Background="#F5F5F5"
-                        Foreground="#333333"
-                        BorderBrush="#DDDDDD"
+                        Background="{DynamicResource DefaultButtonBrush}"
+                        Foreground="{DynamicResource TextSoftBrush}"
+                        BorderBrush="{DynamicResource BorderSoftBrush}"
                         BorderThickness="1"
                         Click="NoButton_Click">
                     <Button.Resources>

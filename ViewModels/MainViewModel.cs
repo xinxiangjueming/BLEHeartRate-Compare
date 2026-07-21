@@ -169,6 +169,9 @@ namespace HeartRateMonitor.ViewModels
         {
             InitializePlotModel();
 
+            // 监听系统主题变化，更新图表轴颜色
+            Services.ThemeService.ThemeChanged += OnThemeChanged;
+
             // 注册蓝牙服务事件
             _bluetoothService.DeviceDiscovered += OnDeviceDiscovered;
             _bluetoothService.DeviceConnected += OnDeviceConnected;
@@ -198,8 +201,14 @@ namespace HeartRateMonitor.ViewModels
 
         private void InitializePlotModel()
         {
+            var isDark = App.ThemeService.IsDarkMode;
+            var textColor = isDark ? OxyColor.FromRgb(224, 224, 224) : OxyColor.FromRgb(51, 51, 51);
+            var titleColor = isDark ? OxyColor.FromRgb(255, 255, 255) : OxyColor.FromRgb(34, 34, 34);
+
             var model = new PlotModel { Title = Strings.ChartTitle };
             model.Background = OxyColors.Transparent;
+            model.TitleColor = titleColor;
+            model.PlotAreaBorderColor = isDark ? OxyColor.FromRgb(85, 85, 85) : OxyColor.FromRgb(221, 221, 221);
 
             model.Axes.Add(new LinearAxis
             {
@@ -213,8 +222,9 @@ namespace HeartRateMonitor.ViewModels
                 IsPanEnabled = false,
                 MajorGridlineStyle = LineStyle.None,
                 MinorGridlineStyle = LineStyle.None,
-                TextColor = OxyColor.FromRgb(51, 51, 51),
-                TitleColor = OxyColor.FromRgb(34, 34, 34)
+                TextColor = textColor,
+                TitleColor = titleColor,
+                AxislineColor = textColor
             });
 
             model.Axes.Add(new LinearAxis
@@ -230,11 +240,31 @@ namespace HeartRateMonitor.ViewModels
                 IsPanEnabled = false,
                 MajorGridlineStyle = LineStyle.None,
                 MinorGridlineStyle = LineStyle.None,
-                TextColor = OxyColor.FromRgb(51, 51, 51),
-                TitleColor = OxyColor.FromRgb(34, 34, 34)
+                TextColor = textColor,
+                TitleColor = titleColor,
+                AxislineColor = textColor
             });
 
             PlotModel = model;
+        }
+
+        private void OnThemeChanged(bool isDark)
+        {
+            var textColor = isDark ? OxyColor.FromRgb(224, 224, 224) : OxyColor.FromRgb(51, 51, 51);
+            var titleColor = isDark ? OxyColor.FromRgb(255, 255, 255) : OxyColor.FromRgb(34, 34, 34);
+
+            PlotModel.TitleColor = titleColor;
+            PlotModel.PlotAreaBorderColor = isDark ? OxyColor.FromRgb(85, 85, 85) : OxyColor.FromRgb(221, 221, 221);
+
+            foreach (var axis in PlotModel.Axes)
+            {
+                axis.TextColor = textColor;
+                axis.TitleColor = titleColor;
+                axis.AxislineColor = textColor;
+            }
+
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => SafeInvalidatePlot(false)),
+                System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         /// <summary>清洗设备名称</summary>
@@ -904,6 +934,7 @@ namespace HeartRateMonitor.ViewModels
 
         public void Dispose()
         {
+            Services.ThemeService.ThemeChanged -= OnThemeChanged;
             _timer.Stop();
             _scanTimer?.Stop();
             _cleanupTimer?.Stop();

@@ -1,8 +1,9 @@
-﻿using System.Configuration;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
+using HeartRateMonitor.Services;
 
 namespace HeartRateMonitor
 {
@@ -11,8 +12,11 @@ namespace HeartRateMonitor
     /// </summary>
     public partial class App : Application
     {
+        public static ThemeService ThemeService { get; private set; } = null!;
+
         public App()
         {
+            ThemeService = new ThemeService();
             DispatcherUnhandledException += OnDispatcherUnhandledException;
         }
 

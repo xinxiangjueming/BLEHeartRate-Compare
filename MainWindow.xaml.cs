@@ -8,9 +8,9 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using HeartRateMonitor.Services;
 using HeartRateMonitor.ViewModels;
 using HeartRateMonitor.Resources;
-using Microsoft.Win32;
 
 namespace HeartRateMonitor
 {
@@ -47,30 +47,13 @@ namespace HeartRateMonitor
 
         // ── 系统托盘 ─────────────────────────────────────
 
-        /// <summary>
-        /// 检测系统是否为深色模式。
-        /// </summary>
-        private static bool IsDarkMode()
-        {
-            try
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-                var value = key?.GetValue("AppsUseLightTheme");
-                return value is int v && v == 0;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         private void TrayIcon_MouseClick(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Button != System.Windows.Forms.MouseButtons.Right) return;
 
             CloseTrayMenu();
 
-            bool dark = IsDarkMode();
+            bool dark = App.ThemeService.IsDarkMode;
 
             // 根据系统主题设置颜色
             var bgColor = dark

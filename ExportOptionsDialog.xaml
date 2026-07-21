@@ -11,8 +11,8 @@
         ShowInTaskbar="False"
         Topmost="True">
 
-    <Border Background="#FAFAFA"
-            BorderBrush="#DDDDDD"
+    <Border Background="{DynamicResource WindowBackgroundBrush}"
+            BorderBrush="{DynamicResource BorderSoftBrush}"
             BorderThickness="2"
             CornerRadius="12"
             Padding="20">
@@ -24,44 +24,44 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="{Binding ExportDialogTitle, Source={StaticResource Strings}}" 
-                       FontSize="20" 
-                       FontWeight="Bold" 
-                       Foreground="#222222"
+            <TextBlock Text="{Binding ExportDialogTitle, Source={StaticResource Strings}}"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource TitleTextSoftBrush}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,15"/>
 
             <!-- 导出类型选择 -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
-                <RadioButton x:Name="HistoryRadio" Content="{Binding ExportTypeHistory, Source={StaticResource Strings}}" GroupName="ExportType" IsChecked="True" Margin="0,0,20,0" FontSize="14" Foreground="#333333"/>
-                <RadioButton x:Name="SnapshotRadio" Content="{Binding ExportTypeSnapshot, Source={StaticResource Strings}}" GroupName="ExportType" FontSize="14" Foreground="#333333"/>
+                <RadioButton x:Name="HistoryRadio" Content="{Binding ExportTypeHistory, Source={StaticResource Strings}}" GroupName="ExportType" IsChecked="True" Margin="0,0,20,0" FontSize="14" Foreground="{DynamicResource RadioButtonForegroundBrush}"/>
+                <RadioButton x:Name="SnapshotRadio" Content="{Binding ExportTypeSnapshot, Source={StaticResource Strings}}" GroupName="ExportType" FontSize="14" Foreground="{DynamicResource RadioButtonForegroundBrush}"/>
             </StackPanel>
 
             <!-- 字段选择区域 -->
             <GroupBox Grid.Row="2" Header="{Binding ExportSelectFields, Source={StaticResource Strings}}" Margin="0,0,0,15" Padding="5"
-                      BorderBrush="#DDDDDD" Foreground="#222222">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      BorderBrush="{DynamicResource BorderSoftBrush}" Foreground="{DynamicResource TitleTextSoftBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               MaxHeight="200">
                     <StackPanel>
-                        <CheckBox x:Name="DeviceCheckBox" Content="{Binding ColDevice, Source={StaticResource Strings}}" IsChecked="True" IsEnabled="False" Margin="5" FontSize="14" Foreground="#333333"/>
-                        <CheckBox x:Name="HRCheckBox" Content="{Binding ColHeartRate, Source={StaticResource Strings}}" IsChecked="True" Margin="5" FontSize="14" Foreground="#333333"/>
-                        <CheckBox x:Name="RRCheckBox" Content="RR" IsChecked="True" Margin="5" FontSize="14" Foreground="#333333"/>
-                        <CheckBox x:Name="DFAAlpha1CheckBox" Content="DFA α1" IsChecked="True" Margin="5" FontSize="14" Foreground="#333333"/>
+                        <CheckBox x:Name="DeviceCheckBox" Content="{Binding ColDevice, Source={StaticResource Strings}}" IsChecked="True" IsEnabled="False" Margin="5" FontSize="14" Foreground="{DynamicResource TextSoftBrush}"/>
+                        <CheckBox x:Name="HRCheckBox" Content="{Binding ColHeartRate, Source={StaticResource Strings}}" IsChecked="True" Margin="5" FontSize="14" Foreground="{DynamicResource TextSoftBrush}"/>
+                        <CheckBox x:Name="RRCheckBox" Content="RR" IsChecked="True" Margin="5" FontSize="14" Foreground="{DynamicResource TextSoftBrush}"/>
+                        <CheckBox x:Name="DFAAlpha1CheckBox" Content="DFA α1" IsChecked="True" Margin="5" FontSize="14" Foreground="{DynamicResource TextSoftBrush}"/>
                     </StackPanel>
                 </ScrollViewer>
             </GroupBox>
 
             <!-- 按钮 -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button x:Name="OkButton" 
-                        Content="{Binding ExportBtnExport, Source={StaticResource Strings}}" 
-                        Width="80" 
-                        Height="35" 
+                <Button x:Name="OkButton"
+                        Content="{Binding ExportBtnExport, Source={StaticResource Strings}}"
+                        Width="80"
+                        Height="35"
                         Margin="0,0,15,0"
-                        Background="#F5F5F5"
-                        Foreground="#333333"
-                        BorderBrush="#DDDDDD"
+                        Background="{DynamicResource DefaultButtonBrush}"
+                        Foreground="{DynamicResource TextSoftBrush}"
+                        BorderBrush="{DynamicResource BorderSoftBrush}"
                         BorderThickness="1"
                         Click="OkButton_Click">
                     <Button.Resources>
@@ -70,13 +70,13 @@
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button x:Name="CancelButton" 
-                        Content="{Binding ExportBtnCancel, Source={StaticResource Strings}}" 
-                        Width="80" 
+                <Button x:Name="CancelButton"
+                        Content="{Binding ExportBtnCancel, Source={StaticResource Strings}}"
+                        Width="80"
                         Height="35"
-                        Background="#F5F5F5"
-                        Foreground="#333333"
-                        BorderBrush="#DDDDDD"
+                        Background="{DynamicResource DefaultButtonBrush}"
+                        Foreground="{DynamicResource TextSoftBrush}"
+                        BorderBrush="{DynamicResource BorderSoftBrush}"
                         BorderThickness="1"
                         Click="CancelButton_Click">
                     <Button.Resources>

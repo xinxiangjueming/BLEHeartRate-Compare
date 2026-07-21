@@ -6,18 +6,9 @@
         xmlns:models="clr-namespace:HeartRateMonitor.Models"
         Title="HeartRateMonitor" Height="800" Width="1200" MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
-        Background="#FAFAFA">
+        Background="{DynamicResource WindowBackgroundBrush}">
 
     <Window.Resources>
-        <!-- 颜色资源 -->
-        <SolidColorBrush x:Key="DefaultButtonBrush" Color="#F5F5F5"/>
-        <SolidColorBrush x:Key="ActiveButtonBrush" Color="#C8E6C9"/>
-        <SolidColorBrush x:Key="BorderSoftBrush" Color="#DDDDDD"/>
-        <SolidColorBrush x:Key="BackgroundSoftBrush" Color="#FEFEFE"/>
-        <SolidColorBrush x:Key="TextSoftBrush" Color="#333333"/>
-        <SolidColorBrush x:Key="TitleTextSoftBrush" Color="#222222"/>
-        <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F0F0F0"/>
-
         <!-- 颜色选项列表 -->
         <x:Array x:Key="ColorOptions" Type="local:ColorOption">
             <local:ColorOption Name="红色" Color="#FF0000"/>
@@ -47,7 +38,7 @@
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Grid.RowSpan="2"
                                     Background="{TemplateBinding Background}"
-                                    BorderBrush="{StaticResource BorderSoftBrush}"
+                                    BorderBrush="{DynamicResource BorderSoftBrush}"
                                     BorderThickness="1" CornerRadius="10"
                                     SnapsToDevicePixels="True">
                                 <Grid>
@@ -56,13 +47,13 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     <Border Grid.Row="0"
-                                            Background="{StaticResource BackgroundSoftBrush}"
+                                            Background="{DynamicResource BackgroundSoftBrush}"
                                             BorderBrush="Transparent"
                                             CornerRadius="10,10,0,0"
                                             Padding="8,4,8,6" Margin="1,1,1,0">
                                         <TextBlock Text="{TemplateBinding Header}"
                                                    FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TitleTextSoftBrush}"
+                                                   Foreground="{DynamicResource TitleTextSoftBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
@@ -84,14 +75,14 @@
         <Style x:Key="ControlLabelStyle" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSoftBrush}"/>
         </Style>
 
         <!-- 大圆角按钮样式 -->
         <Style x:Key="LargeRoundedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource DefaultButtonBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource DefaultButtonBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSoftBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="20,12"/>
             <Setter Property="MinWidth" Value="140"/>
@@ -110,11 +101,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8E8E8"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#CCCCCC"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonMouseOverBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D8D8D8"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -124,9 +115,9 @@
 
         <!-- 大圆角 ToggleButton 样式 -->
         <Style x:Key="LargeRoundedToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Background" Value="{StaticResource DefaultButtonBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource DefaultButtonBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSoftBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="20,12"/>
             <Setter Property="MinWidth" Value="140"/>
@@ -145,14 +136,14 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8E8E8"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#CCCCCC"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonMouseOverBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D8D8D8"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Background" Value="#E0B0FF"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonCheckedBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -162,9 +153,9 @@
 
         <!-- 中等圆角按钮样式 -->
         <Style x:Key="MediumRoundedButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource DefaultButtonBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource DefaultButtonBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSoftBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="MinWidth" Value="80"/>
@@ -182,11 +173,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#E8E8E8"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#CCCCCC"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonMouseOverBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#D8D8D8"/>
+                                <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -196,23 +187,23 @@
 
         <!-- 圆角 TextBox 样式 -->
         <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource BackgroundSoftBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundSoftBrush}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="MinHeight" Value="32"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSoftBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="border"
                                 Background="{TemplateBinding Background}"
-                                BorderBrush="{StaticResource BorderSoftBrush}"
+                                BorderBrush="{DynamicResource BorderSoftBrush}"
                                 BorderThickness="1" CornerRadius="10">
                             <ScrollViewer x:Name="PART_ContentHost" Margin="5,0"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#4D90FE"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -222,13 +213,13 @@
 
         <!-- 圆角 ComboBox 样式 -->
         <Style x:Key="RoundedComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="{StaticResource BackgroundSoftBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSoftBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderSoftBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="4,2"/>
             <Setter Property="MinHeight" Value="26"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSoftBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSoftBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
@@ -255,7 +246,7 @@
                                             <ControlTemplate TargetType="ToggleButton">
                                                 <Border Background="Transparent" Padding="4,0,6,0">
                                                     <Path x:Name="Arrow" Data="M0,0 L5,5 L10,0"
-                                                          Fill="#666666" HorizontalAlignment="Center"
+                                                          Fill="{DynamicResource ComboBoxArrowBrush}" HorizontalAlignment="Center"
                                                           VerticalAlignment="Center" Margin="0,2,0,0"/>
                                                 </Border>
                                             </ControlTemplate>
@@ -267,8 +258,8 @@
                                    IsOpen="{TemplateBinding IsDropDownOpen}"
                                    AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Border x:Name="dropDownBorder"
-                                        Background="{StaticResource BackgroundSoftBrush}"
-                                        BorderBrush="{StaticResource BorderSoftBrush}"
+                                        Background="{DynamicResource BackgroundSoftBrush}"
+                                        BorderBrush="{DynamicResource BorderSoftBrush}"
                                         BorderThickness="1" CornerRadius="10"
                                         MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                     <ScrollViewer x:Name="scrollViewer" VerticalScrollBarVisibility="Auto">
@@ -279,10 +270,10 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#CCCCCC"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
                             </Trigger>
                             <Trigger Property="IsDropDownOpen" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#4D90FE"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource FocusBorderBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -293,7 +284,7 @@
         <!-- 圆角 CheckBox 样式 -->
         <Style x:Key="RoundedCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="4,2"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -312,7 +303,7 @@
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     CornerRadius="10" VerticalAlignment="Center" Margin="0,0,4,0">
                                 <Path x:Name="CheckMark" Data="M4,8 L7,11 L12,4"
-                                      Stroke="Green" StrokeThickness="2" Visibility="Collapsed"/>
+                                      Stroke="{DynamicResource CheckMarkStrokeBrush}" StrokeThickness="2" Visibility="Collapsed"/>
                             </Border>
                             <ContentPresenter x:Name="contentPresenter" Grid.Column="1"
                                               Content="{TemplateBinding Content}"
@@ -326,10 +317,10 @@
                                 <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#999999"/>
+                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{DynamicResource CheckBoxHoverBorderBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="CheckBoxBorder" Property="Background" Value="#E0E0E0"/>
+                                <Setter TargetName="CheckBoxBorder" Property="Background" Value="{DynamicResource CheckBoxPressedBackgroundBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -345,20 +336,20 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollBar">
                         <Grid SnapsToDevicePixels="True" Background="{TemplateBinding Background}">
-                            <Border CornerRadius="10" Background="#E0E0E0" Margin="0"/>
+                            <Border CornerRadius="10" Background="{DynamicResource ScrollBarTrackBrush}" Margin="0"/>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.Thumb>
                                     <Thumb>
                                         <Thumb.Template>
                                             <ControlTemplate TargetType="Thumb">
                                                 <Border x:Name="thumbBorder" CornerRadius="10"
-                                                        Background="#BDBDBD" Margin="2,0"/>
+                                                        Background="{DynamicResource ScrollBarThumbBrush}" Margin="2,0"/>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="thumbBorder" Property="Background" Value="#9E9E9E"/>
+                                                        <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsDragging" Value="True">
-                                                        <Setter TargetName="thumbBorder" Property="Background" Value="#757575"/>
+                                                        <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbDraggingBrush}"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -377,20 +368,20 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="ScrollBar">
                                 <Grid SnapsToDevicePixels="True" Background="{TemplateBinding Background}">
-                                    <Border CornerRadius="10" Background="#E0E0E0"/>
+                                    <Border CornerRadius="10" Background="{DynamicResource ScrollBarTrackBrush}"/>
                                     <Track x:Name="PART_Track">
                                         <Track.Thumb>
                                             <Thumb>
                                                 <Thumb.Template>
                                                     <ControlTemplate TargetType="Thumb">
                                                         <Border x:Name="thumbBorder" CornerRadius="10"
-                                                                Background="#BDBDBD" Margin="0,2"/>
+                                                                Background="{DynamicResource ScrollBarThumbBrush}" Margin="0,2"/>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter TargetName="thumbBorder" Property="Background" Value="#9E9E9E"/>
+                                                                <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbHoverBrush}"/>
                                                             </Trigger>
                                                             <Trigger Property="IsDragging" Value="True">
-                                                                <Setter TargetName="thumbBorder" Property="Background" Value="#757575"/>
+                                                                <Setter TargetName="thumbBorder" Property="Background" Value="{DynamicResource ScrollBarThumbDraggingBrush}"/>
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
                                                     </ControlTemplate>
@@ -427,8 +418,8 @@
 
             <!-- 扫描控制区 -->
             <GroupBox Header="{Binding HeaderScanControl, Source={StaticResource Strings}}" Grid.Row="0" Padding="8" Background="Transparent">
-                <Border BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="2"
-                        CornerRadius="10" Background="{StaticResource BackgroundSoftBrush}"
+                <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
+                        CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}"
                         Padding="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Grid.RowDefinitions>
@@ -449,7 +440,7 @@
                                 </Button.Style>
                             </Button>
                             <Button Content="{Binding BtnExport, Source={StaticResource Strings}}" Command="{Binding ExportCommand}"
-                                    Style="{StaticResource LargeRoundedButtonStyle}" Background="#FFD9E8F2"/>
+                                    Style="{StaticResource LargeRoundedButtonStyle}" Background="{DynamicResource ExportBlueBrush}"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                             <ToggleButton Content="{Binding BtnAutoReconnect, Source={StaticResource Strings}}" IsChecked="{Binding AutoReconnect}"
@@ -463,8 +454,8 @@
 
             <!-- 扫描设备列表 -->
             <GroupBox Header="{Binding HeaderDiscoveredDevices, Source={StaticResource Strings}}" Grid.Row="1" Padding="8" Background="Transparent">
-                <Border BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="2"
-                        CornerRadius="10" Background="{StaticResource BackgroundSoftBrush}" Padding="5">
+                <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
+                        CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}" Padding="5">
                     <ListBox ItemsSource="{Binding DiscoveredDevices}"
                              SelectedIndex="{Binding SelectedDeviceIndex}"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -479,9 +470,10 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding}" VerticalAlignment="Center"
                                                HorizontalAlignment="Stretch"
-                                               TextTrimming="CharacterEllipsis"/>
+                                               TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource TextSoftBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding BtnConnect, Source={StaticResource Strings}}" FontSize="13"
-                                               Foreground="#2196F3" Cursor="Hand"
+                                               Foreground="#E53935" Cursor="Hand"
                                                VerticalAlignment="Center"
                                                Margin="8,0,0,0" Padding="4,2"
                                                TextDecorations="None"
@@ -493,12 +485,12 @@
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Margin" Value="0,0,0,2"/>
                                 <Setter Property="Padding" Value="6,6,6,6"/>
-                                <Setter Property="Background" Value="#F9F9F9"/>
+                                <Setter Property="Background" Value="{DynamicResource ListItemBackgroundBrush}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="ItemBorder"
-                                                    BorderBrush="{StaticResource BorderSoftBrush}"
+                                                    BorderBrush="{DynamicResource BorderSoftBrush}"
                                                     BorderThickness="2" CornerRadius="10"
                                                     Background="{TemplateBinding Background}"
                                                     Margin="{TemplateBinding Margin}"
@@ -507,12 +499,12 @@
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="ItemBorder" Property="Background" Value="#F0F0F0"/>
-                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#CCCCCC"/>
+                                                    <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ListItemHoverBackgroundBrush}"/>
+                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="ItemBorder" Property="Background" Value="#E1F0FA"/>
-                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#2196F3"/>
+                                                    <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ListItemSelectedBackgroundBrush}"/>
+                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource LinkBlueBrush}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -526,8 +518,8 @@
 
             <!-- 实时数据表格 -->
             <GroupBox Header="{Binding HeaderRealtimeData, Source={StaticResource Strings}}" Grid.Row="2" Padding="8" Background="Transparent">
-                <Border BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="2"
-                        CornerRadius="10" Background="{StaticResource BackgroundSoftBrush}" Padding="13">
+                <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
+                        CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}" Padding="13">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="0">
                         <ItemsControl ItemsSource="{Binding ConnectedDevices}"
                                       BorderThickness="0" Background="Transparent"
@@ -542,9 +534,9 @@
                                         </Grid.RowDefinitions>
                                         <!-- 标题行 -->
                                         <Border Grid.Row="0" BorderThickness="2"
-                                                BorderBrush="{StaticResource BorderSoftBrush}"
+                                                BorderBrush="{DynamicResource BorderSoftBrush}"
                                                 Padding="0,8,0,8" Margin="0,0,0,8"
-                                                Background="{StaticResource HeaderBackgroundBrush}"
+                                                Background="{DynamicResource HeaderBackgroundBrush}"
                                                 CornerRadius="10" HorizontalAlignment="Stretch">
                                             <Grid HorizontalAlignment="Stretch" Margin="6,0,0,0">
                                                 <Grid.ColumnDefinitions>
@@ -564,30 +556,30 @@
                                                     <ColumnDefinition Width="2"/>
                                                     <ColumnDefinition Width="60"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Grid.Column="1" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <Border Grid.Column="3" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <Border Grid.Column="5" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <Border Grid.Column="7" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <Border Grid.Column="9" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <Border Grid.Column="11" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <Border Grid.Column="13" Background="#DDDDDD" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="1" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="3" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="5" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="7" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="9" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="11" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
                                                 <TextBlock Grid.Column="0" Text="{Binding ColDevice, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="2" Text="{Binding ColHeartRate, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="4" Text="RR" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="6" Text="SDNN" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="8" Text="RMSSD" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="10" Text="{Binding ColBattery, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="12" Text="{Binding ColColor, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <Border Grid.Column="13" Background="#DDDDDD" VerticalAlignment="Stretch"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
                                                 <TextBlock Grid.Column="14" Text="{Binding ColAction, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Grid>
                                         </Border>
                                         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
@@ -601,14 +593,14 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border x:Name="DeviceRowBorder"
-                                            BorderThickness="2" BorderBrush="{StaticResource BorderSoftBrush}"
+                                            BorderThickness="2" BorderBrush="{DynamicResource BorderSoftBrush}"
                                             CornerRadius="10" Padding="6,6,6,6" Margin="0,0,0,2"
-                                            HorizontalAlignment="Stretch" Background="#F9F9F9">
+                                            HorizontalAlignment="Stretch" Background="{DynamicResource ListItemBackgroundBrush}">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Model.IsConnected}" Value="False">
-                                                        <Setter Property="Background" Value="#F0F0F0"/>
+                                                        <Setter Property="Background" Value="{DynamicResource ListItemHoverBackgroundBrush}"/>
                                                         <Setter Property="Opacity" Value="0.7"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -632,13 +624,13 @@
                                                 <ColumnDefinition Width="2"/>
                                                 <ColumnDefinition Width="60"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="1" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="3" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="5" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="7" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="9" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="11" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="13" Background="#DDDDDD" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="1" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="3" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="5" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="7" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="9" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="11" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                            <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
 
                                             <!-- 设备名称：鼠标悬停时滚动显示完整名称 -->
                                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -647,7 +639,7 @@
                                                       MouseLeave="DeviceName_MouseLeave"
                                                       VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Model.Alias}" FontSize="13"
-                                                               Foreground="{StaticResource TextSoftBrush}"
+                                                               Foreground="{DynamicResource TextSoftBrush}"
                                                                ToolTip="{Binding Model.Alias}"
                                                                TextTrimming="CharacterEllipsis"
                                                                RenderTransformOrigin="0,0">
@@ -657,34 +649,34 @@
                                                     </TextBlock>
                                                 </Grid>
                                                 <TextBlock x:Name="DisconnectedText" Text="{Binding Disconnected, Source={StaticResource Strings}}"
-                                                           Foreground="Gray" FontSize="11" Margin="2,0,0,0"
+                                                           Foreground="{DynamicResource TextSoftBrush}" FontSize="11" Margin="2,0,0,0"
                                                            Visibility="Collapsed"/>
                                             </StackPanel>
 
                                             <!-- 心率 -->
                                             <TextBlock Grid.Column="2"
                                                        Text="{Binding Model.HeartRate, StringFormat='{}{0}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{StaticResource TextSoftBrush}"
+                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                             <!-- RR (保留1位小数，显示亚毫秒精度) -->
                                             <TextBlock Grid.Column="4"
                                                        Text="{Binding Model.LastRR, StringFormat='{}{0:F1}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{StaticResource TextSoftBrush}"
+                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                             <!-- SDNN -->
                                             <TextBlock Grid.Column="6"
                                                        Text="{Binding Model.Hrv.SDNN, StringFormat='{}{0:F1}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{StaticResource TextSoftBrush}"
+                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                             <!-- RMSSD -->
                                             <TextBlock Grid.Column="8"
                                                        Text="{Binding Model.Hrv.RMSSD, StringFormat='{}{0:F1}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{StaticResource TextSoftBrush}"
+                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                             <!-- 电量 -->
                                             <TextBlock Grid.Column="10"
                                                        Text="{Binding Model.BatteryLevel, StringFormat='{}{0}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{StaticResource TextSoftBrush}"
+                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
                                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             <!-- 颜色选择 -->
                                             <ComboBox Grid.Column="12"
@@ -702,14 +694,14 @@
                                                                 </Rectangle.Fill>
                                                             </Rectangle>
                                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                                                       Foreground="{StaticResource TextSoftBrush}"/>
+                                                                       Foreground="{DynamicResource TextSoftBrush}"/>
                                                         </StackPanel>
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
                                             <!-- 断开 -->
                                             <TextBlock Grid.Column="14" Text="{Binding BtnDisconnect, Source={StaticResource Strings}}" FontSize="13"
-                                                       Foreground="#E53935" Cursor="Hand"
+                                                       Foreground="{DynamicResource LinkRedBrush}" Cursor="Hand"
                                                        VerticalAlignment="Center" HorizontalAlignment="Center"
                                                        TextDecorations="None"
                                                        MouseLeftButtonDown="DisconnectDevice_Click"/>
@@ -759,7 +751,7 @@
                                 <Style.Triggers>
                                     <Trigger Property="IsChecked" Value="True">
                                         <Setter Property="Content" Value="{Binding BtnRecording, Source={StaticResource Strings}}"/>
-                                        <Setter Property="Background" Value="#C8E6C9"/>
+                                        <Setter Property="Background" Value="{DynamicResource RecordGreenBrush}"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -767,12 +759,12 @@
                     </ToggleButton>
                     <Button Content="{Binding BtnClearChart, Source={StaticResource Strings}}" Command="{Binding ClearChartCommand}"
                             Margin="20,0,0,0" MinWidth="90"
-                            Style="{StaticResource MediumRoundedButtonStyle}" Background="#FFE8D0C5"/>
+                            Style="{StaticResource MediumRoundedButtonStyle}" Background="{DynamicResource ClearChartBrush}"/>
                 </StackPanel>
             </Grid>
 
             <!-- 设备图例行 -->
-            <Border Grid.Row="1" Margin="0,0,0,10" Padding="8" Background="#F0F0F0" CornerRadius="10">
+            <Border Grid.Row="1" Margin="0,0,0,10" Padding="8" Background="{DynamicResource ChartLegendBackgroundBrush}" CornerRadius="10">
                 <ItemsControl ItemsSource="{Binding ConnectedDevices}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -787,8 +779,8 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Ellipse Width="12" Height="12"
                                                  Fill="{Binding HrSeries.Color, Converter={StaticResource OxyColorToBrushConverter}}"
-                                                 Margin="0,0,4,0" Stroke="#888888" StrokeThickness="1"/>
-                                        <TextBlock Text="{Binding Model.Alias}" FontSize="12" Foreground="#333333"/>
+                                                 Margin="0,0,4,0" Stroke="{DynamicResource LegendDotStrokeBrush}" StrokeThickness="1"/>
+                                        <TextBlock Text="{Binding Model.Alias}" FontSize="12" Foreground="{DynamicResource ChartLegendForegroundBrush}"/>
                                     </StackPanel>
                                 </CheckBox.Content>
                             </CheckBox>
@@ -798,7 +790,7 @@
             </Border>
 
             <!-- 主图表区域 -->
-            <oxy:PlotView Grid.Row="2" Model="{Binding PlotModel}" Background="#FAFAFA"/>
+            <oxy:PlotView Grid.Row="2" Model="{Binding PlotModel}" Background="{DynamicResource ChartBackgroundBrush}"/>
         </Grid>
     </Grid>
 </Window>

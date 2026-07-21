@@ -11,8 +11,8 @@
         ShowInTaskbar="False"
         Topmost="True">
 
-    <Border Background="#FAFAFA"
-            BorderBrush="#DDDDDD"
+    <Border Background="{DynamicResource WindowBackgroundBrush}"
+            BorderBrush="{DynamicResource BorderSoftBrush}"
             BorderThickness="2"
             CornerRadius="12"
             Padding="20">
@@ -26,7 +26,7 @@
             <TextBlock Text="{Binding MessageTitle, Source={StaticResource Strings}}"
                        FontSize="20"
                        FontWeight="Bold"
-                       Foreground="#222222"
+                       Foreground="{DynamicResource TitleTextSoftBrush}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,15"/>
 
@@ -34,7 +34,7 @@
                        Grid.Row="1"
                        Text=""
                        FontSize="14"
-                       Foreground="#333333"
+                       Foreground="{DynamicResource TextSoftBrush}"
                        TextWrapping="Wrap"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
@@ -48,9 +48,9 @@
                         Content="{Binding BtnOk, Source={StaticResource Strings}}"
                         Width="80"
                         Height="35"
-                        Background="#F5F5F5"
-                        Foreground="#333333"
-                        BorderBrush="#DDDDDD"
+                        Background="{DynamicResource DefaultButtonBrush}"
+                        Foreground="{DynamicResource TextSoftBrush}"
+                        BorderBrush="{DynamicResource BorderSoftBrush}"
                         BorderThickness="1"
                         Click="OkButton_Click">
                     <Button.Resources>
