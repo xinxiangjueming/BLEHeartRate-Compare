@@ -6,7 +6,15 @@
         xmlns:models="clr-namespace:HeartRateMonitor.Models"
         Title="HeartRateMonitor" Height="800" Width="1200" MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="Transparent">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"
+                      ResizeBorderThickness="8"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <!-- 颜色选项列表 -->
@@ -399,146 +407,341 @@
 
     </Window.Resources>
 
-    <Grid Margin="10">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" MinWidth="300"/>
-            <ColumnDefinition Width="2*" MinWidth="600"/>
-        </Grid.ColumnDefinitions>
 
-        <!-- 左侧功能区 -->
-        <Grid Grid.Column="0" Margin="0,0,10,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*" MinHeight="150"/>
-                <RowDefinition Height="1*" MinHeight="150"/>
-                <RowDefinition Height="1*" MinHeight="150"/>
-            </Grid.RowDefinitions>
+        <!-- 自定义标题栏 -->
+        <Grid Grid.Row="0" Background="{DynamicResource TitleBarBackgroundBrush}"
+              MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+              MouseLeftButtonUp="TitleBar_MouseLeftButtonUp"
+              MouseMove="TitleBar_MouseMove">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- 扫描控制区 -->
-            <GroupBox Header="{Binding HeaderScanControl, Source={StaticResource Strings}}" Grid.Row="0" Padding="8" Background="Transparent">
-                <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
-                        CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}"
-                        Padding="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
-                            <Button Command="{Binding ScanCommand}" Margin="0,0,15,0">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource LargeRoundedButtonStyle}">
-                                        <Setter Property="Content" Value="{Binding BtnScan, Source={StaticResource Strings}}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsScanning}" Value="True">
-                                                <Setter Property="Content" Value="{Binding BtnScanning, Source={StaticResource Strings}}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                            <Button Content="{Binding BtnExport, Source={StaticResource Strings}}" Command="{Binding ExportCommand}"
-                                    Style="{StaticResource LargeRoundedButtonStyle}" Background="{DynamicResource ExportBlueBrush}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <ToggleButton Content="{Binding BtnAutoReconnect, Source={StaticResource Strings}}" IsChecked="{Binding AutoReconnect}"
-                                          Style="{StaticResource LargeRoundedToggleButtonStyle}" Margin="0,0,15,0"/>
-                            <ToggleButton Content="{Binding BtnShowAll, Source={StaticResource Strings}}" IsChecked="{Binding ShowAllData}"
-                                          Style="{StaticResource LargeRoundedToggleButtonStyle}"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </GroupBox>
+            <!-- 应用图标 -->
+            <Image Grid.Column="0" Source="pack://application:,,,/icon.ico"
+                   Width="16" Height="16" Margin="10,0,6,0"
+                   VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
 
-            <!-- 扫描设备列表 -->
-            <GroupBox Header="{Binding HeaderDiscoveredDevices, Source={StaticResource Strings}}" Grid.Row="1" Padding="8" Background="Transparent">
-                <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
-                        CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}" Padding="5">
-                    <ListBox ItemsSource="{Binding DiscoveredDevices}"
-                             SelectedIndex="{Binding SelectedDeviceIndex}"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             BorderThickness="0" Background="Transparent" Padding="8,4">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding}" VerticalAlignment="Center"
-                                               HorizontalAlignment="Stretch"
-                                               TextTrimming="CharacterEllipsis"
-                                               Foreground="{DynamicResource TextSoftBrush}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding BtnConnect, Source={StaticResource Strings}}" FontSize="13"
-                                               Foreground="#E53935" Cursor="Hand"
-                                               VerticalAlignment="Center"
-                                               Margin="8,0,0,0" Padding="4,2"
-                                               TextDecorations="None"
-                                               MouseLeftButtonDown="ConnectDevice_Click"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Margin" Value="0,0,0,2"/>
-                                <Setter Property="Padding" Value="6,6,6,6"/>
-                                <Setter Property="Background" Value="{DynamicResource ListItemBackgroundBrush}"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ListBoxItem">
-                                            <Border x:Name="ItemBorder"
-                                                    BorderBrush="{DynamicResource BorderSoftBrush}"
-                                                    BorderThickness="2" CornerRadius="10"
-                                                    Background="{TemplateBinding Background}"
-                                                    Margin="{TemplateBinding Margin}"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ListItemHoverBackgroundBrush}"/>
-                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ListItemSelectedBackgroundBrush}"/>
-                                                    <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource LinkBlueBrush}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                    </ListBox>
-                </Border>
-            </GroupBox>
+            <!-- 标题文字 -->
+            <TextBlock Grid.Column="1" Text="HeartRateMonitor"
+                       Foreground="{DynamicResource TitleBarCaptionBrush}"
+                       FontSize="12" VerticalAlignment="Center"
+                       Margin="0,0,0,0"/>
 
-            <!-- 实时数据表格 -->
-            <GroupBox Header="{Binding HeaderRealtimeData, Source={StaticResource Strings}}" Grid.Row="2" Padding="8" Background="Transparent">
-                <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
-                        CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}" Padding="13">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="0">
-                        <ItemsControl ItemsSource="{Binding ConnectedDevices}"
-                                      BorderThickness="0" Background="Transparent"
-                                      HorizontalContentAlignment="Stretch">
+            <!-- 窗口控制按钮 -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <!-- 最小化 -->
+                <Button x:Name="MinimizeButton" Width="46" Height="32"
+                        Background="{DynamicResource TitleBarButtonBrush}"
+                        BorderThickness="0" Click="MinimizeButton_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bg" Background="{TemplateBinding Background}">
+                                            <Path Data="M0,6 L8,6" Stroke="{DynamicResource TitleBarButtonIconBrush}"
+                                                  StrokeThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource TitleBarButtonHoverBrush}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource TitleBarButtonPressedBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
-                            <ItemsControl.Template>
-                                <ControlTemplate TargetType="ItemsControl">
+                <!-- 最大化/还原 -->
+                <Button x:Name="MaximizeButton" Width="46" Height="32"
+                        Background="{DynamicResource TitleBarButtonBrush}"
+                        BorderThickness="0" Click="MaximizeButton_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bg" Background="{TemplateBinding Background}">
+                                            <Canvas Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <!-- 外框 -->
+                                                <Rectangle Canvas.Left="0" Canvas.Top="0" Width="8" Height="8"
+                                                           Stroke="{DynamicResource TitleBarButtonIconBrush}" StrokeThickness="1"
+                                                           Fill="Transparent" RadiusX="0" RadiusY="0"/>
+                                                <!-- 内部白色遮罩（模拟最大化时的层叠效果） -->
+                                                <Rectangle x:Name="InnerRect" Canvas.Left="1.5" Canvas.Top="1.5" Width="6" Height="6"
+                                                           Fill="{DynamicResource TitleBarBackgroundBrush}" StrokeThickness="0"/>
+                                            </Canvas>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource TitleBarButtonHoverBrush}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource TitleBarButtonPressedBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- 关闭 -->
+                <Button x:Name="CloseButton" Width="46" Height="32"
+                        Background="{DynamicResource TitleBarButtonBrush}"
+                        BorderThickness="0" Click="CloseButton_Click"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bg" Background="{TemplateBinding Background}">
+                                            <Canvas Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M0,0 L8,8 M8,0 L0,8" Stroke="{DynamicResource TitleBarButtonIconBrush}"
+                                                      StrokeThickness="1.2"/>
+                                            </Canvas>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource TitleBarCloseHoverBrush}"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="bg" Property="Background" Value="{DynamicResource TitleBarClosePressedBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- 内容区域 -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" MinWidth="300"/>
+                <ColumnDefinition Width="2*" MinWidth="600"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧功能区 -->
+            <Grid Grid.Column="0" Margin="0,0,10,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" MinHeight="150"/>
+                    <RowDefinition Height="1*" MinHeight="150"/>
+                    <RowDefinition Height="1*" MinHeight="150"/>
+                </Grid.RowDefinitions>
+
+                <!-- 扫描控制区 -->
+                <GroupBox Header="{Binding HeaderScanControl, Source={StaticResource Strings}}" Grid.Row="0" Padding="8" Background="Transparent">
+                    <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
+                            CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}"
+                            Padding="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+                                <Button Command="{Binding ScanCommand}" Margin="0,0,15,0">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource LargeRoundedButtonStyle}">
+                                            <Setter Property="Content" Value="{Binding BtnScan, Source={StaticResource Strings}}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsScanning}" Value="True">
+                                                    <Setter Property="Content" Value="{Binding BtnScanning, Source={StaticResource Strings}}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Content="{Binding BtnExport, Source={StaticResource Strings}}" Command="{Binding ExportCommand}"
+                                        Style="{StaticResource LargeRoundedButtonStyle}" Background="{DynamicResource ExportBlueBrush}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                                <ToggleButton Content="{Binding BtnAutoReconnect, Source={StaticResource Strings}}" IsChecked="{Binding AutoReconnect}"
+                                              Style="{StaticResource LargeRoundedToggleButtonStyle}" Margin="0,0,15,0"/>
+                                <ToggleButton Content="{Binding BtnShowAll, Source={StaticResource Strings}}" IsChecked="{Binding ShowAllData}"
+                                              Style="{StaticResource LargeRoundedToggleButtonStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </GroupBox>
+
+                <!-- 扫描设备列表 -->
+                <GroupBox Header="{Binding HeaderDiscoveredDevices, Source={StaticResource Strings}}" Grid.Row="1" Padding="8" Background="Transparent">
+                    <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
+                            CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}" Padding="5">
+                        <ListBox ItemsSource="{Binding DiscoveredDevices}"
+                                 SelectedIndex="{Binding SelectedDeviceIndex}"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 BorderThickness="0" Background="Transparent" Padding="8,4">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
                                     <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <!-- 标题行 -->
-                                        <Border Grid.Row="0" BorderThickness="2"
-                                                BorderBrush="{DynamicResource BorderSoftBrush}"
-                                                Padding="0,8,0,8" Margin="0,0,0,8"
-                                                Background="{DynamicResource HeaderBackgroundBrush}"
-                                                CornerRadius="10" HorizontalAlignment="Stretch">
-                                            <Grid HorizontalAlignment="Stretch" Margin="6,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding}" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{DynamicResource TextSoftBrush}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding BtnConnect, Source={StaticResource Strings}}" FontSize="13"
+                                                   Foreground="#E53935" Cursor="Hand"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0" Padding="4,2"
+                                                   TextDecorations="None"
+                                                   MouseLeftButtonDown="ConnectDevice_Click"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Margin" Value="0,0,0,2"/>
+                                    <Setter Property="Padding" Value="6,6,6,6"/>
+                                    <Setter Property="Background" Value="{DynamicResource ListItemBackgroundBrush}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="ItemBorder"
+                                                        BorderBrush="{DynamicResource BorderSoftBrush}"
+                                                        BorderThickness="2" CornerRadius="10"
+                                                        Background="{TemplateBinding Background}"
+                                                        Margin="{TemplateBinding Margin}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ListItemHoverBackgroundBrush}"/>
+                                                        <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource ButtonMouseOverBorderBrush}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ListItemSelectedBackgroundBrush}"/>
+                                                        <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource LinkBlueBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </Border>
+                </GroupBox>
+
+                <!-- 实时数据表格 -->
+                <GroupBox Header="{Binding HeaderRealtimeData, Source={StaticResource Strings}}" Grid.Row="2" Padding="8" Background="Transparent">
+                    <Border BorderBrush="{DynamicResource BorderSoftBrush}" BorderThickness="2"
+                            CornerRadius="10" Background="{DynamicResource BackgroundSoftBrush}" Padding="13">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="0">
+                            <ItemsControl ItemsSource="{Binding ConnectedDevices}"
+                                          BorderThickness="0" Background="Transparent"
+                                          HorizontalContentAlignment="Stretch">
+
+                                <ItemsControl.Template>
+                                    <ControlTemplate TargetType="ItemsControl">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <!-- 标题行 -->
+                                            <Border Grid.Row="0" BorderThickness="2"
+                                                    BorderBrush="{DynamicResource BorderSoftBrush}"
+                                                    Padding="0,8,0,8" Margin="0,0,0,8"
+                                                    Background="{DynamicResource HeaderBackgroundBrush}"
+                                                    CornerRadius="10" HorizontalAlignment="Stretch">
+                                                <Grid HorizontalAlignment="Stretch" Margin="6,0,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="120"/>
+                                                        <ColumnDefinition Width="2"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="2"/>
+                                                        <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=60}"/>
+                                                        <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=2}"/>
+                                                        <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=70}"/>
+                                                        <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=2}"/>
+                                                        <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=70}"/>
+                                                        <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=2}"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="2"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="2"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="1" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <Border Grid.Column="3" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <Border Grid.Column="5" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <Border Grid.Column="7" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <Border Grid.Column="9" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <Border Grid.Column="11" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <TextBlock Grid.Column="0" Text="{Binding ColDevice, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding ColHeartRate, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="4" Text="RR" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="6" Text="SDNN" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="8" Text="RMSSD" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="10" Text="{Binding ColBattery, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="12" Text="{Binding ColColor, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
+                                                    <TextBlock Grid.Column="14" Text="{Binding ColAction, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
+                                                               Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
+                                                          VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
+                                                <ItemsPresenter/>
+                                            </ScrollViewer>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </ItemsControl.Template>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="DeviceRowBorder"
+                                                BorderThickness="2" BorderBrush="{DynamicResource BorderSoftBrush}"
+                                                CornerRadius="10" Padding="6,6,6,6" Margin="0,0,0,2"
+                                                HorizontalAlignment="Stretch" Background="{DynamicResource ListItemBackgroundBrush}">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Model.IsConnected}" Value="False">
+                                                            <Setter Property="Background" Value="{DynamicResource ListItemHoverBackgroundBrush}"/>
+                                                            <Setter Property="Opacity" Value="0.7"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid HorizontalAlignment="Stretch">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="120"/>
                                                     <ColumnDefinition Width="2"/>
@@ -563,234 +766,167 @@
                                                 <Border Grid.Column="9" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
                                                 <Border Grid.Column="11" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
                                                 <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                                <TextBlock Grid.Column="0" Text="{Binding ColDevice, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding ColHeartRate, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="4" Text="RR" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="6" Text="SDNN" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="8" Text="RMSSD" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="10" Text="{Binding ColBattery, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="12" Text="{Binding ColColor, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                                <TextBlock Grid.Column="14" Text="{Binding ColAction, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
-                                                           Foreground="{DynamicResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                                                <!-- 设备名称：鼠标悬停时滚动显示完整名称 -->
+                                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <Grid ClipToBounds="True" MaxWidth="100"
+                                                          MouseEnter="DeviceName_MouseEnter"
+                                                          MouseLeave="DeviceName_MouseLeave"
+                                                          VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Model.Alias}" FontSize="13"
+                                                                   Foreground="{DynamicResource TextSoftBrush}"
+                                                                   ToolTip="{Binding Model.Alias}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   RenderTransformOrigin="0,0">
+                                                            <TextBlock.RenderTransform>
+                                                                <TranslateTransform X="0"/>
+                                                            </TextBlock.RenderTransform>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <TextBlock x:Name="DisconnectedText" Text="{Binding Disconnected, Source={StaticResource Strings}}"
+                                                               Foreground="{DynamicResource TextSoftBrush}" FontSize="11" Margin="2,0,0,0"
+                                                               Visibility="Collapsed"/>
+                                                </StackPanel>
+
+                                                <!-- 心率 -->
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding Model.HeartRate, StringFormat='{}{0}', TargetNullValue=''}"
+                                                           FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                <!-- RR (保留1位小数，显示亚毫秒精度) -->
+                                                <TextBlock Grid.Column="4"
+                                                           Text="{Binding Model.LastRR, StringFormat='{}{0:F1}', TargetNullValue=''}"
+                                                           FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                <!-- SDNN -->
+                                                <TextBlock Grid.Column="6"
+                                                           Text="{Binding Model.Hrv.SDNN, StringFormat='{}{0:F1}', TargetNullValue=''}"
+                                                           FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                <!-- RMSSD -->
+                                                <TextBlock Grid.Column="8"
+                                                           Text="{Binding Model.Hrv.RMSSD, StringFormat='{}{0:F1}', TargetNullValue=''}"
+                                                           FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                                                <!-- 电量 -->
+                                                <TextBlock Grid.Column="10"
+                                                           Text="{Binding Model.BatteryLevel, StringFormat='{}{0}', TargetNullValue=''}"
+                                                           FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <!-- 颜色选择 -->
+                                                <ComboBox Grid.Column="12"
+                                                          ItemsSource="{Binding Source={StaticResource ColorOptions}}"
+                                                          SelectedIndex="{Binding Model.ColorIndex}"
+                                                          VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                          Width="70" FontSize="12"
+                                                          Style="{StaticResource RoundedComboBoxStyle}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Rectangle Width="12" Height="12" Margin="0,0,4,0">
+                                                                    <Rectangle.Fill>
+                                                                        <SolidColorBrush Color="{Binding Color}"/>
+                                                                    </Rectangle.Fill>
+                                                                </Rectangle>
+                                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                                                           Foreground="{DynamicResource TextSoftBrush}"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                                <!-- 断开 -->
+                                                <TextBlock Grid.Column="14" Text="{Binding BtnDisconnect, Source={StaticResource Strings}}" FontSize="13"
+                                                           Foreground="{DynamicResource LinkRedBrush}" Cursor="Hand"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                           TextDecorations="None"
+                                                           MouseLeftButtonDown="DisconnectDevice_Click"/>
                                             </Grid>
                                         </Border>
-                                        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
-                                                      VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch">
-                                            <ItemsPresenter/>
-                                        </ScrollViewer>
-                                    </Grid>
-                                </ControlTemplate>
-                            </ItemsControl.Template>
-
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border x:Name="DeviceRowBorder"
-                                            BorderThickness="2" BorderBrush="{DynamicResource BorderSoftBrush}"
-                                            CornerRadius="10" Padding="6,6,6,6" Margin="0,0,0,2"
-                                            HorizontalAlignment="Stretch" Background="{DynamicResource ListItemBackgroundBrush}">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Model.IsConnected}" Value="False">
-                                                        <Setter Property="Background" Value="{DynamicResource ListItemHoverBackgroundBrush}"/>
-                                                        <Setter Property="Opacity" Value="0.7"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <Grid HorizontalAlignment="Stretch">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="120"/>
-                                                <ColumnDefinition Width="2"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="2"/>
-                                                <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=60}"/>
-                                                <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=2}"/>
-                                                <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=70}"/>
-                                                <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=2}"/>
-                                                <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=70}"/>
-                                                <ColumnDefinition Width="{Binding DataContext.ShowHrvColumns, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToGridLength}, ConverterParameter=2}"/>
-                                                <ColumnDefinition Width="60"/>
-                                                <ColumnDefinition Width="2"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="2"/>
-                                                <ColumnDefinition Width="60"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="1" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="3" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="5" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="7" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="9" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="11" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-                                            <Border Grid.Column="13" Background="{DynamicResource TableSeparatorBrush}" VerticalAlignment="Stretch"/>
-
-                                            <!-- 设备名称：鼠标悬停时滚动显示完整名称 -->
-                                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <Grid ClipToBounds="True" MaxWidth="100"
-                                                      MouseEnter="DeviceName_MouseEnter"
-                                                      MouseLeave="DeviceName_MouseLeave"
-                                                      VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding Model.Alias}" FontSize="13"
-                                                               Foreground="{DynamicResource TextSoftBrush}"
-                                                               ToolTip="{Binding Model.Alias}"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               RenderTransformOrigin="0,0">
-                                                        <TextBlock.RenderTransform>
-                                                            <TranslateTransform X="0"/>
-                                                        </TextBlock.RenderTransform>
-                                                    </TextBlock>
-                                                </Grid>
-                                                <TextBlock x:Name="DisconnectedText" Text="{Binding Disconnected, Source={StaticResource Strings}}"
-                                                           Foreground="{DynamicResource TextSoftBrush}" FontSize="11" Margin="2,0,0,0"
-                                                           Visibility="Collapsed"/>
-                                            </StackPanel>
-
-                                            <!-- 心率 -->
-                                            <TextBlock Grid.Column="2"
-                                                       Text="{Binding Model.HeartRate, StringFormat='{}{0}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                            <!-- RR (保留1位小数，显示亚毫秒精度) -->
-                                            <TextBlock Grid.Column="4"
-                                                       Text="{Binding Model.LastRR, StringFormat='{}{0:F1}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                            <!-- SDNN -->
-                                            <TextBlock Grid.Column="6"
-                                                       Text="{Binding Model.Hrv.SDNN, StringFormat='{}{0:F1}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                            <!-- RMSSD -->
-                                            <TextBlock Grid.Column="8"
-                                                       Text="{Binding Model.Hrv.RMSSD, StringFormat='{}{0:F1}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                            <!-- 电量 -->
-                                            <TextBlock Grid.Column="10"
-                                                       Text="{Binding Model.BatteryLevel, StringFormat='{}{0}', TargetNullValue=''}"
-                                                       FontSize="13" Foreground="{DynamicResource TextSoftBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <!-- 颜色选择 -->
-                                            <ComboBox Grid.Column="12"
-                                                      ItemsSource="{Binding Source={StaticResource ColorOptions}}"
-                                                      SelectedIndex="{Binding Model.ColorIndex}"
-                                                      VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                      Width="70" FontSize="12"
-                                                      Style="{StaticResource RoundedComboBoxStyle}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Rectangle Width="12" Height="12" Margin="0,0,4,0">
-                                                                <Rectangle.Fill>
-                                                                    <SolidColorBrush Color="{Binding Color}"/>
-                                                                </Rectangle.Fill>
-                                                            </Rectangle>
-                                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                                                       Foreground="{DynamicResource TextSoftBrush}"/>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                            <!-- 断开 -->
-                                            <TextBlock Grid.Column="14" Text="{Binding BtnDisconnect, Source={StaticResource Strings}}" FontSize="13"
-                                                       Foreground="{DynamicResource LinkRedBrush}" Cursor="Hand"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                       TextDecorations="None"
-                                                       MouseLeftButtonDown="DisconnectDevice_Click"/>
-                                        </Grid>
-                                    </Border>
-                                    <DataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding Model.IsConnected}" Value="False">
-                                            <Setter TargetName="DisconnectedText" Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </DataTemplate.Triggers>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Border>
-            </GroupBox>
-        </Grid>
-
-        <!-- 右侧图表区 -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- 图表控制栏 -->
-            <Grid Grid.Row="0" Margin="0,30,0,20">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding LabelYAxisRange, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}" Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding LabelMinValue, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}"/>
-                    <TextBox Text="{Binding YMinText, UpdateSourceTrigger=PropertyChanged}"
-                             Width="65" Margin="8,0" TextAlignment="Center"
-                             Style="{StaticResource RoundedTextBoxStyle}"/>
-                    <TextBlock Text="{Binding LabelMaxValue, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}" Margin="8,0,0,0"/>
-                    <TextBox Text="{Binding YMaxText, UpdateSourceTrigger=PropertyChanged}"
-                             Width="65" Margin="8,0" TextAlignment="Center"
-                             Style="{StaticResource RoundedTextBoxStyle}"/>
-                    <Button Content="{Binding BtnApply, Source={StaticResource Strings}}" Command="{Binding ApplyYRangeCommand}"
-                            Margin="12,0,0,0" Style="{StaticResource MediumRoundedButtonStyle}" MinWidth="70"/>
-                    <ToggleButton IsChecked="{Binding IsRecording}"
-                                  Click="ToggleRecording_Click"
-                                  Margin="8,0,0,0" MinWidth="100">
-                        <ToggleButton.Style>
-                            <Style TargetType="ToggleButton" BasedOn="{StaticResource LargeRoundedToggleButtonStyle}">
-                                <Setter Property="Content" Value="{Binding BtnRecord, Source={StaticResource Strings}}"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsChecked" Value="True">
-                                        <Setter Property="Content" Value="{Binding BtnRecording, Source={StaticResource Strings}}"/>
-                                        <Setter Property="Background" Value="{DynamicResource RecordGreenBrush}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ToggleButton.Style>
-                    </ToggleButton>
-                    <Button Content="{Binding BtnClearChart, Source={StaticResource Strings}}" Command="{Binding ClearChartCommand}"
-                            Margin="20,0,0,0" MinWidth="90"
-                            Style="{StaticResource MediumRoundedButtonStyle}" Background="{DynamicResource ClearChartBrush}"/>
-                </StackPanel>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Model.IsConnected}" Value="False">
+                                                <Setter TargetName="DisconnectedText" Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </GroupBox>
             </Grid>
 
-            <!-- 设备图例行 -->
-            <Border Grid.Row="1" Margin="0,0,0,10" Padding="8" Background="{DynamicResource ChartLegendBackgroundBrush}" CornerRadius="10">
-                <ItemsControl ItemsSource="{Binding ConnectedDevices}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding Model.IsVisible}" Margin="8,0"
-                                      VerticalAlignment="Center" Style="{StaticResource RoundedCheckBoxStyle}">
-                                <CheckBox.Content>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="12" Height="12"
-                                                 Fill="{Binding HrSeries.Color, Converter={StaticResource OxyColorToBrushConverter}}"
-                                                 Margin="0,0,4,0" Stroke="{DynamicResource LegendDotStrokeBrush}" StrokeThickness="1"/>
-                                        <TextBlock Text="{Binding Model.Alias}" FontSize="12" Foreground="{DynamicResource ChartLegendForegroundBrush}"/>
-                                    </StackPanel>
-                                </CheckBox.Content>
-                            </CheckBox>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
+            <!-- 右侧图表区 -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <!-- 主图表区域 -->
-            <oxy:PlotView Grid.Row="2" Model="{Binding PlotModel}" Background="{DynamicResource ChartBackgroundBrush}"/>
+                <!-- 图表控制栏 -->
+                <Grid Grid.Row="0" Margin="0,30,0,20">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding LabelYAxisRange, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding LabelMinValue, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}"/>
+                        <TextBox Text="{Binding YMinText, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="65" Margin="8,0" TextAlignment="Center"
+                                 Style="{StaticResource RoundedTextBoxStyle}"/>
+                        <TextBlock Text="{Binding LabelMaxValue, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}" Margin="8,0,0,0"/>
+                        <TextBox Text="{Binding YMaxText, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="65" Margin="8,0" TextAlignment="Center"
+                                 Style="{StaticResource RoundedTextBoxStyle}"/>
+                        <Button Content="{Binding BtnApply, Source={StaticResource Strings}}" Command="{Binding ApplyYRangeCommand}"
+                                Margin="12,0,0,0" Style="{StaticResource MediumRoundedButtonStyle}" MinWidth="70"/>
+                        <ToggleButton IsChecked="{Binding IsRecording}"
+                                      Click="ToggleRecording_Click"
+                                      Margin="8,0,0,0" MinWidth="100">
+                            <ToggleButton.Style>
+                                <Style TargetType="ToggleButton" BasedOn="{StaticResource LargeRoundedToggleButtonStyle}">
+                                    <Setter Property="Content" Value="{Binding BtnRecord, Source={StaticResource Strings}}"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Content" Value="{Binding BtnRecording, Source={StaticResource Strings}}"/>
+                                            <Setter Property="Background" Value="{DynamicResource RecordGreenBrush}"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                        <Button Content="{Binding BtnClearChart, Source={StaticResource Strings}}" Command="{Binding ClearChartCommand}"
+                                Margin="20,0,0,0" MinWidth="90"
+                                Style="{StaticResource MediumRoundedButtonStyle}" Background="{DynamicResource ClearChartBrush}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 设备图例行 -->
+                <Border Grid.Row="1" Margin="0,0,0,10" Padding="8" Background="{DynamicResource ChartLegendBackgroundBrush}" CornerRadius="10">
+                    <ItemsControl ItemsSource="{Binding ConnectedDevices}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Model.IsVisible}" Margin="8,0"
+                                          VerticalAlignment="Center" Style="{StaticResource RoundedCheckBoxStyle}">
+                                    <CheckBox.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="12" Height="12"
+                                                     Fill="{Binding HrSeries.Color, Converter={StaticResource OxyColorToBrushConverter}}"
+                                                     Margin="0,0,4,0" Stroke="{DynamicResource LegendDotStrokeBrush}" StrokeThickness="1"/>
+                                            <TextBlock Text="{Binding Model.Alias}" FontSize="12" Foreground="{DynamicResource ChartLegendForegroundBrush}"/>
+                                        </StackPanel>
+                                    </CheckBox.Content>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+                <!-- 主图表区域 -->
+                <oxy:PlotView Grid.Row="2" Model="{Binding PlotModel}" Background="{DynamicResource ChartBackgroundBrush}"/>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

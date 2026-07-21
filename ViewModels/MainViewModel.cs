@@ -278,7 +278,7 @@ namespace HeartRateMonitor.ViewModels
         private void SafeInvalidatePlot(bool updateData)
         {
             try { PlotModel.InvalidatePlot(updateData); }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Plot] InvalidatePlot 异常: {ex.Message}"); }
+            catch (Exception ex) { Logger.Error("InvalidatePlot 异常", ex); System.Diagnostics.Debug.WriteLine($"[Plot] InvalidatePlot 异常: {ex.Message}"); }
         }
 
         // ══════════════════════════════════════════════════
@@ -579,6 +579,7 @@ namespace HeartRateMonitor.ViewModels
             }
             catch (Exception ex)
             {
+                Logger.Error("Timer 异常", ex);
                 System.Diagnostics.Debug.WriteLine($"[Timer] 异常: {ex.Message}");
             }
         }

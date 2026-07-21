@@ -47,6 +47,16 @@
     <SolidColorBrush x:Key="CheckMarkStrokeBrush" Color="#4CAF50"/>
     <SolidColorBrush x:Key="LegendDotStrokeBrush" Color="#888888"/>
 
+    <!-- 标题栏 -->
+    <SolidColorBrush x:Key="TitleBarBackgroundBrush" Color="#F3F3F3"/>
+    <SolidColorBrush x:Key="TitleBarCaptionBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="TitleBarButtonBrush" Color="Transparent"/>
+    <SolidColorBrush x:Key="TitleBarButtonHoverBrush" Color="#E8E8E8"/>
+    <SolidColorBrush x:Key="TitleBarButtonPressedBrush" Color="#D0D0D0"/>
+    <SolidColorBrush x:Key="TitleBarCloseHoverBrush" Color="#C42B1C"/>
+    <SolidColorBrush x:Key="TitleBarClosePressedBrush" Color="#C42B1C"/>
+    <SolidColorBrush x:Key="TitleBarButtonIconBrush" Color="#1A1A1A"/>
+
     <!-- 图表区域 -->
     <SolidColorBrush x:Key="ChartBackgroundBrush" Color="#FAFAFA"/>
     <SolidColorBrush x:Key="ChartLegendBackgroundBrush" Color="#F0F0F0"/>

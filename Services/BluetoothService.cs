@@ -81,6 +81,7 @@ namespace HeartRateMonitor.Services
             catch (Exception ex)
             {
                 Debug.WriteLine($"[BLE] 启动扫描失败: {ex.Message}");
+                Logger.Error("启动蓝牙扫描失败", ex);
                 _watcher = null;
                 ErrorOccurred?.Invoke("", Strings.ErrorBluetoothScanFailed);
             }
@@ -122,6 +123,8 @@ namespace HeartRateMonitor.Services
         {
             // 停止扫描以释放蓝牙资源
             StopScan();
+
+            Logger.Info($"开始连接设备: 地址={bluetoothAddress}, 名称={displayName ?? "未知"}");
 
             try
             {
@@ -195,10 +198,12 @@ namespace HeartRateMonitor.Services
                 _handles[deviceId] = handle;
 
                 DeviceConnected?.Invoke(deviceId);
+                Logger.Info($"设备连接成功: {cleanName} (ID={deviceId})");
                 return model;
             }
             catch (Exception ex)
             {
+                Logger.Error("连接设备异常", ex);
                 ErrorOccurred?.Invoke("", string.Format(Strings.BleConnectionException, ex.Message));
                 return null;
             }
@@ -212,6 +217,7 @@ namespace HeartRateMonitor.Services
             if (!_handles.TryGetValue(deviceId, out var handle))
                 return;
 
+            Logger.Info($"断开设备: {handle.Model.Alias} (ID={deviceId})");
             handle.Model.Status = DeviceStatus.Disconnected;
 
             await UnsubscribeNotifications(handle);
@@ -234,6 +240,7 @@ namespace HeartRateMonitor.Services
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
+                Logger.Info($"尝试重连 {model.Alias} 第 {attempt}/{maxAttempts} 次");
                 Debug.WriteLine($"[BLE] 尝试重连 {model.Alias} 第 {attempt}/{maxAttempts} 次...");
 
                 try
@@ -294,6 +301,8 @@ namespace HeartRateMonitor.Services
         {
             if (!_handles.TryGetValue(deviceId, out var handle))
                 return;
+
+            Logger.Info($"连接状态变化: {handle.Model.Alias} → {status}");
 
             if (status == BluetoothConnectionStatus.Disconnected)
             {
@@ -465,6 +474,7 @@ namespace HeartRateMonitor.Services
             }
             catch (Exception ex)
             {
+                Logger.Error($"解析心率数据异常 ({deviceId})", ex);
                 Debug.WriteLine($"[BLE] 解析心率数据异常 ({deviceId}): {ex.Message}");
             }
         }

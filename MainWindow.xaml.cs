@@ -23,6 +23,7 @@ namespace HeartRateMonitor
         private readonly MainViewModel _viewModel;
         private readonly System.Windows.Forms.NotifyIcon _trayIcon;
         private Popup? _trayMenu;
+        private bool _micaEnabled;
 
         public MainWindow()
         {
@@ -43,6 +44,76 @@ namespace HeartRateMonitor
 
             // 右键菜单
             _trayIcon.MouseClick += TrayIcon_MouseClick;
+
+            // 监听主题变化，更新 DWM 标题栏
+            ThemeService.ThemeChanged += OnThemeChanged;
+
+            // 窗口加载完成后启用 Mica
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            _micaEnabled = DwmHelper.EnableMica(hwnd, App.ThemeService.IsDarkMode);
+
+            // Mica 失败时回退到纯色背景
+            if (!_micaEnabled)
+            {
+                Background = (Brush)FindResource("WindowBackgroundBrush");
+            }
+        }
+
+        private void OnThemeChanged(bool isDark)
+        {
+            if (!_micaEnabled) return;
+
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            DwmHelper.SetDarkModeTitleBar(hwnd, isDark);
+        }
+
+        // ── 标题栏拖拽 ──────────────────────────────────
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ToggleMaximize();
+                return;
+            }
+            DragMove();
+        }
+
+        private void TitleBar_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+        }
+
+        private void TitleBar_MouseMove(object sender, MouseEventArgs e)
+        {
+        }
+
+        // ── 窗口控制按钮 ────────────────────────────────
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleMaximize();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void ToggleMaximize()
+        {
+            WindowState = WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
         }
 
         // ── 系统托盘 ─────────────────────────────────────
@@ -260,6 +331,7 @@ namespace HeartRateMonitor
 
         protected override void OnClosed(EventArgs e)
         {
+            ThemeService.ThemeChanged -= OnThemeChanged;
             _trayIcon.Dispose();
             _viewModel.Dispose();
             base.OnClosed(e);
