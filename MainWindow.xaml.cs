@@ -159,7 +159,8 @@ namespace HeartRateMonitor
             borderFactory.SetBinding(Border.BackgroundProperty, new Binding("Background") { RelativeSource = new RelativeSource(RelativeSourceMode.TemplatedParent) });
 
             var contentFactory = new FrameworkElementFactory(typeof(ContentPresenter));
-            contentFactory.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Left);
+            contentFactory.SetBinding(ContentPresenter.HorizontalAlignmentProperty,
+                new Binding("HorizontalContentAlignment") { RelativeSource = new RelativeSource(RelativeSourceMode.TemplatedParent) });
             contentFactory.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
             contentFactory.SetValue(ContentPresenter.MarginProperty, new Thickness(0));
             borderFactory.AppendChild(contentFactory);
