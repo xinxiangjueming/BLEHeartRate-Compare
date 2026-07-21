@@ -1,17 +1,20 @@
 using System;
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.Win32;
 
 namespace HeartRateMonitor.Services
 {
     /// <summary>
     /// 管理应用主题（深色/浅色），自动跟随系统设置切换。
+    /// 同时使用事件和轮询双保险。
     /// </summary>
     public sealed class ThemeService : IDisposable
     {
         private readonly ResourceDictionary _lightTheme;
         private readonly ResourceDictionary _darkTheme;
         private ResourceDictionary _currentTheme;
+        private readonly DispatcherTimer _pollTimer;
 
         /// <summary>
         /// 主题变化时触发。参数为 true 表示深色模式。
@@ -38,7 +41,16 @@ namespace HeartRateMonitor.Services
             _currentTheme = IsDarkMode ? _darkTheme : _lightTheme;
             Application.Current.Resources.MergedDictionaries.Add(_currentTheme);
 
+            Logger.Info($"ThemeService 初始化: IsDarkMode={IsDarkMode}");
+
+            // 事件监听（快速响应，但可能不稳定）
             SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+
+            // 轮询检测（每 2 秒检查注册表，可靠兜底）
+            _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+            _pollTimer.Tick += OnPollTick;
+            _pollTimer.Start();
+            Logger.Info("ThemeService 轮询 Timer 已启动 (2秒间隔)");
         }
 
         /// <summary>
@@ -59,6 +71,17 @@ namespace HeartRateMonitor.Services
             }
         }
 
+        private void OnPollTick(object? sender, EventArgs e)
+        {
+            bool dark = GetSystemDarkMode();
+            if (dark == IsDarkMode) return;
+
+            Logger.Info($"[轮询] 主题变化: {IsDarkMode} → {dark}");
+            IsDarkMode = dark;
+            ApplyTheme(dark);
+            ThemeChanged?.Invoke(dark);
+        }
+
         private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
         {
             if (e.Category != UserPreferenceCategory.General) return;
@@ -66,6 +89,7 @@ namespace HeartRateMonitor.Services
             bool dark = GetSystemDarkMode();
             if (dark == IsDarkMode) return;
 
+            Logger.Info($"[事件] 检测到主题变化: {(dark ? "深色" : "浅色")}");
             IsDarkMode = dark;
             ApplyTheme(dark);
             ThemeChanged?.Invoke(dark);
@@ -75,20 +99,19 @@ namespace HeartRateMonitor.Services
         {
             var app = Application.Current;
             var dicts = app.Resources.MergedDictionaries;
-
-            int index = dicts.IndexOf(_currentTheme);
             var newTheme = dark ? _darkTheme : _lightTheme;
 
-            if (index >= 0)
-                dicts[index] = newTheme;
-            else
-                dicts.Add(newTheme);
+            // 先移除旧字典，再添加新字典，强制 WPF 刷新 DynamicResource
+            if (_currentTheme != null)
+                dicts.Remove(_currentTheme);
 
+            dicts.Add(newTheme);
             _currentTheme = newTheme;
         }
 
         public void Dispose()
         {
+            _pollTimer.Stop();
             SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
         }
     }

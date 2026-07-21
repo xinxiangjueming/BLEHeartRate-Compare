@@ -12,6 +12,8 @@ namespace HeartRateMonitor.Services
         private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
         private const int DWMWA_CAPTION_COLOR = 35;
         private const int DWMWA_BORDER_COLOR = 34;
+        private const int DWMWA_WINDOW_CORNER_PREFERENCE = 33;
+        private const int DWMWCP_ROUND = 2;
 
         // DWM_SYSTEMBACKDROP_TYPE 枚举
         private const int DWMSBT_AUTO = 0;
@@ -77,6 +79,16 @@ namespace HeartRateMonitor.Services
         {
             DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR,
                 ref argbColor, sizeof(int));
+        }
+
+        /// <summary>
+        /// 强制窗口圆角（Win11+）。
+        /// </summary>
+        public static void EnableRoundedCorners(IntPtr hwnd)
+        {
+            int cornerPref = DWMWCP_ROUND;
+            DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE,
+                ref cornerPref, sizeof(int));
         }
     }
 }

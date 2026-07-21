@@ -285,6 +285,9 @@ namespace HeartRateMonitor.ViewModels
             catch (Exception ex) { Logger.Error("InvalidatePlot 异常", ex); System.Diagnostics.Debug.WriteLine($"[Plot] InvalidatePlot 异常: {ex.Message}"); }
         }
 
+        /// <summary>供 View 层调用的图表刷新（窗口大小变化后重绘）</summary>
+        public void RefreshPlot() => SafeInvalidatePlot(false);
+
         // ══════════════════════════════════════════════════
         // 扫描
         // ══════════════════════════════════════════════════

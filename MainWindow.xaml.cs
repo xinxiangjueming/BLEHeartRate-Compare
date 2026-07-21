@@ -50,6 +50,9 @@ namespace HeartRateMonitor
 
             // 窗口加载完成后启用 Mica
             Loaded += OnLoaded;
+
+            // 窗口大小变化后刷新图表，消除残影
+            SizeChanged += OnSizeChanged;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -57,19 +60,41 @@ namespace HeartRateMonitor
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
             _micaEnabled = DwmHelper.EnableMica(hwnd, App.ThemeService.IsDarkMode);
 
-            // Mica 失败时回退到纯色背景
-            if (!_micaEnabled)
-            {
-                Background = (Brush)FindResource("WindowBackgroundBrush");
-            }
+            // 强制圆角
+            DwmHelper.EnableRoundedCorners(hwnd);
+
+            // 设置窗口背景色
+            Background = (Brush)FindResource("WindowBackgroundBrush");
+
+            // 设置 DWM 边框颜色匹配主题
+            int borderColor = App.ThemeService.IsDarkMode ? unchecked((int)0xFF1E1E1E) : unchecked((int)0xFFF3F3F3);
+            DwmHelper.SetBorderColor(hwnd, borderColor);
         }
 
         private void OnThemeChanged(bool isDark)
         {
+            // 同步更新窗口背景色
+            try
+            {
+                Background = (Brush)FindResource("WindowBackgroundBrush");
+            }
+            catch { }
+
             if (!_micaEnabled) return;
 
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
             DwmHelper.SetDarkModeTitleBar(hwnd, isDark);
+
+            // 设置 DWM 边框颜色匹配主题，消除最大化白色边缘
+            int borderColor = isDark ? unchecked((int)0xFF1E1E1E) : unchecked((int)0xFFF3F3F3);
+            DwmHelper.SetBorderColor(hwnd, borderColor);
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // 延迟刷新图表，等布局完成后重绘消除残影
+            Dispatcher.BeginInvoke(new Action(() => _viewModel.RefreshPlot()),
+                System.Windows.Threading.DispatcherPriority.Render);
         }
 
         // ── 标题栏拖拽 ──────────────────────────────────
