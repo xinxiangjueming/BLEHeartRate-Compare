@@ -142,7 +142,7 @@ namespace HeartRateMonitor
                 Foreground = new SolidColorBrush(textColor),
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(16, 8, 16, 8),
-                HorizontalContentAlignment = HorizontalAlignment.Left,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
                 Cursor = Cursors.Hand,
                 FontSize = 13,
                 Template = CreateMenuItemTemplate(hoverColor, pressedColor)
