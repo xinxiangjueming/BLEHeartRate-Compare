@@ -64,6 +64,10 @@ namespace HeartRateMonitor.ViewModels
         /// <summary>是否有已连接的设备</summary>
         public bool HasConnectedDevices => _connectedDevices.Count > 0;
 
+        /// <summary>是否有活跃设备（最近 10 秒内有数据）</summary>
+        public bool HasActiveDevices => _connectedDevices.Any(c =>
+            c.Model.IsConnected && c.Model.LastDataTimestamp >= DateTime.Now.AddSeconds(-10));
+
         // ── 图表 ─────────────────────────────────────────
 
         private PlotModel _plotModel = null!;
@@ -456,8 +460,28 @@ namespace HeartRateMonitor.ViewModels
                 if (model.ColorIndex >= 0 && model.ColorIndex < PredefinedColors.Length)
                 {
                     var c = PredefinedColors[model.ColorIndex];
-                    series.Color = c;
-                    series.Fill = OxyColor.FromAColor(40, c);
+
+                    // 替换整个 series 以触发图例颜色更新
+                    int idx = PlotModel.Series.IndexOf(series);
+                    if (idx >= 0)
+                    {
+                        var newSeries = new AreaSeries
+                        {
+                            Title = model.Alias,
+                            StrokeThickness = 2,
+                            Color = c,
+                            Fill = OxyColor.FromAColor(40, c),
+                            XAxisKey = "XAxis",
+                            YAxisKey = "YAxis",
+                            IsVisible = series.IsVisible,
+                            TrackerFormatString = series.TrackerFormatString
+                        };
+                        newSeries.Points.AddRange(series.Points);
+                        PlotModel.Series[idx] = newSeries;
+                        connected.HrSeries = newSeries;
+                        series = newSeries;
+                    }
+
                     SafeInvalidatePlot(true);
                 }
             };
@@ -559,6 +583,22 @@ namespace HeartRateMonitor.ViewModels
             try
             {
                 DateTime now = DateTime.Now;
+
+                // 数据超时检测：超过 10 秒无数据的设备自动断开
+                foreach (var connected in _connectedDevices.ToList())
+                {
+                    if (connected.Model.IsConnected &&
+                        connected.Model.LastDataTimestamp != default &&
+                        connected.Model.LastDataTimestamp < now.AddSeconds(-10))
+                    {
+                        Logger.Info($"设备数据超时: {connected.Model.Alias}，自动断开");
+                        StatusMessage = string.Format(Strings.StatusDeviceDisconnected, connected.Model.Alias);
+                        DisconnectDevice(connected);
+                    }
+                }
+
+                if (_connectedDevices.Count == 0) return;
+
                 double currentSeconds = (now - _sessionStartTime.Value).TotalSeconds;
                 int currentSecond = (int)currentSeconds;
 
@@ -961,7 +1001,7 @@ namespace HeartRateMonitor.ViewModels
         public DeviceModel Model { get; init; } = null!;
 
         /// <summary>OxyPlot 心率曲线</summary>
-        public AreaSeries HrSeries { get; init; } = null!;
+        public AreaSeries HrSeries { get; set; } = null!;
 
         // ── 历史数据队列（每秒记录，用于导出）──
 

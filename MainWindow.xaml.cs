@@ -315,7 +315,7 @@ namespace HeartRateMonitor
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (_viewModel.HasConnectedDevices)
+            if (_viewModel.HasActiveDevices)
             {
                 e.Cancel = true;
                 Hide();

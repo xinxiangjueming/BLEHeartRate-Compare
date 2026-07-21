@@ -126,9 +126,6 @@ namespace HeartRateMonitor.Services
                 string startBattery = dev.FirstBattery.HasValue ? $"{dev.FirstBattery.Value}%" : "--";
                 string endBattery = dev.LastBattery.HasValue ? $"{dev.LastBattery.Value}%" : "--";
                 csv.AppendLine($"# Device: {dev.Alias}, Battery: Start={startBattery}, End={endBattery}");
-
-                foreach (var evt in dev.ConnectionEvents)
-                    csv.AppendLine($"# Event: {evt}");
             }
 
             return csv.ToString();
