@@ -426,7 +426,7 @@
             </Grid.RowDefinitions>
 
             <!-- 扫描控制区 -->
-            <GroupBox Header="扫描控制" Grid.Row="0" Padding="8" Background="Transparent">
+            <GroupBox Header="{Binding HeaderScanControl, Source={StaticResource Strings}}" Grid.Row="0" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="2"
                         CornerRadius="10" Background="{StaticResource BackgroundSoftBrush}"
                         Padding="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -439,22 +439,22 @@
                             <Button Command="{Binding ScanCommand}" Margin="0,0,15,0">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource LargeRoundedButtonStyle}">
-                                        <Setter Property="Content" Value="扫描设备"/>
+                                        <Setter Property="Content" Value="{Binding BtnScan, Source={StaticResource Strings}}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsScanning}" Value="True">
-                                                <Setter Property="Content" Value="扫描中..."/>
+                                                <Setter Property="Content" Value="{Binding BtnScanning, Source={StaticResource Strings}}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                            <Button Content="导出数据" Command="{Binding ExportCommand}"
+                            <Button Content="{Binding BtnExport, Source={StaticResource Strings}}" Command="{Binding ExportCommand}"
                                     Style="{StaticResource LargeRoundedButtonStyle}" Background="#FFD9E8F2"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <ToggleButton Content="自动重连" IsChecked="{Binding AutoReconnect}"
+                            <ToggleButton Content="{Binding BtnAutoReconnect, Source={StaticResource Strings}}" IsChecked="{Binding AutoReconnect}"
                                           Style="{StaticResource LargeRoundedToggleButtonStyle}" Margin="0,0,15,0"/>
-                            <ToggleButton Content="显示全部" IsChecked="{Binding ShowAllData}"
+                            <ToggleButton Content="{Binding BtnShowAll, Source={StaticResource Strings}}" IsChecked="{Binding ShowAllData}"
                                           Style="{StaticResource LargeRoundedToggleButtonStyle}"/>
                         </StackPanel>
                     </Grid>
@@ -462,7 +462,7 @@
             </GroupBox>
 
             <!-- 扫描设备列表 -->
-            <GroupBox Header="扫描到的设备" Grid.Row="1" Padding="8" Background="Transparent">
+            <GroupBox Header="{Binding HeaderDiscoveredDevices, Source={StaticResource Strings}}" Grid.Row="1" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="2"
                         CornerRadius="10" Background="{StaticResource BackgroundSoftBrush}" Padding="5">
                     <ListBox ItemsSource="{Binding DiscoveredDevices}"
@@ -480,7 +480,7 @@
                                     <TextBlock Text="{Binding}" VerticalAlignment="Center"
                                                HorizontalAlignment="Stretch"
                                                TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="1" Text="连接" FontSize="13"
+                                    <TextBlock Grid.Column="1" Text="{Binding BtnConnect, Source={StaticResource Strings}}" FontSize="13"
                                                Foreground="#2196F3" Cursor="Hand"
                                                VerticalAlignment="Center"
                                                Margin="8,0,0,0" Padding="4,2"
@@ -525,7 +525,7 @@
             </GroupBox>
 
             <!-- 实时数据表格 -->
-            <GroupBox Header="实时数据" Grid.Row="2" Padding="8" Background="Transparent">
+            <GroupBox Header="{Binding HeaderRealtimeData, Source={StaticResource Strings}}" Grid.Row="2" Padding="8" Background="Transparent">
                 <Border BorderBrush="{StaticResource BorderSoftBrush}" BorderThickness="2"
                         CornerRadius="10" Background="{StaticResource BackgroundSoftBrush}" Padding="13">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="0">
@@ -571,9 +571,9 @@
                                                 <Border Grid.Column="9" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                                 <Border Grid.Column="11" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                                 <Border Grid.Column="13" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <TextBlock Grid.Column="0" Text="设备" FontWeight="Bold" FontSize="13"
+                                                <TextBlock Grid.Column="0" Text="{Binding ColDevice, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="2" Text="心率" FontWeight="Bold" FontSize="13"
+                                                <TextBlock Grid.Column="2" Text="{Binding ColHeartRate, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="4" Text="RR" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
@@ -581,12 +581,12 @@
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="8" Text="RMSSD" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" Margin="0,0,5,0" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="10" Text="电量" FontWeight="Bold" FontSize="13"
+                                                <TextBlock Grid.Column="10" Text="{Binding ColBattery, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="12" Text="颜色" FontWeight="Bold" FontSize="13"
+                                                <TextBlock Grid.Column="12" Text="{Binding ColColor, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                                 <Border Grid.Column="13" Background="#DDDDDD" VerticalAlignment="Stretch"/>
-                                                <TextBlock Grid.Column="14" Text="操作" FontWeight="Bold" FontSize="13"
+                                                <TextBlock Grid.Column="14" Text="{Binding ColAction, Source={StaticResource Strings}}" FontWeight="Bold" FontSize="13"
                                                            Foreground="{StaticResource TitleTextSoftBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Grid>
                                         </Border>
@@ -640,45 +640,23 @@
                                             <Border Grid.Column="11" Background="#DDDDDD" VerticalAlignment="Stretch"/>
                                             <Border Grid.Column="13" Background="#DDDDDD" VerticalAlignment="Stretch"/>
 
-                                            <!-- 设备名称 -->
+                                            <!-- 设备名称：鼠标悬停时滚动显示完整名称 -->
                                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <!-- 设备名称：鼠标悬停时滚动显示完整名称 -->
-                                                <Grid ClipToBounds="True" MaxWidth="100">
-                                                    <Grid.Clip>
-                                                        <RectangleGeometry Rect="0,0,100,30"/>
-                                                    </Grid.Clip>
+                                                <Grid ClipToBounds="True" MaxWidth="100"
+                                                      MouseEnter="DeviceName_MouseEnter"
+                                                      MouseLeave="DeviceName_MouseLeave"
+                                                      VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Model.Alias}" FontSize="13"
                                                                Foreground="{StaticResource TextSoftBrush}"
                                                                ToolTip="{Binding Model.Alias}"
+                                                               TextTrimming="CharacterEllipsis"
                                                                RenderTransformOrigin="0,0">
                                                         <TextBlock.RenderTransform>
                                                             <TranslateTransform X="0"/>
                                                         </TextBlock.RenderTransform>
-                                                        <TextBlock.Triggers>
-                                                            <EventTrigger RoutedEvent="Loaded">
-                                                                <BeginStoryboard>
-                                                                    <Storyboard RepeatBehavior="Forever">
-                                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
-                                                                                         From="0" To="-300" Duration="0:0:6"
-                                                                                         BeginTime="0:0:1">
-                                                                            <DoubleAnimation.EasingFunction>
-                                                                                <SineEase EasingMode="EaseInOut"/>
-                                                                            </DoubleAnimation.EasingFunction>
-                                                                        </DoubleAnimation>
-                                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
-                                                                                         From="-300" To="0" Duration="0:0:0.5"
-                                                                                         BeginTime="0:0:7">
-                                                                            <DoubleAnimation.EasingFunction>
-                                                                                <SineEase EasingMode="EaseInOut"/>
-                                                                            </DoubleAnimation.EasingFunction>
-                                                                        </DoubleAnimation>
-                                                                    </Storyboard>
-                                                                </BeginStoryboard>
-                                                            </EventTrigger>
-                                                        </TextBlock.Triggers>
                                                     </TextBlock>
                                                 </Grid>
-                                                <TextBlock x:Name="DisconnectedText" Text=" (已断开)"
+                                                <TextBlock x:Name="DisconnectedText" Text="{Binding Disconnected, Source={StaticResource Strings}}"
                                                            Foreground="Gray" FontSize="11" Margin="2,0,0,0"
                                                            Visibility="Collapsed"/>
                                             </StackPanel>
@@ -730,7 +708,7 @@
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
                                             <!-- 断开 -->
-                                            <TextBlock Grid.Column="14" Text="断开" FontSize="13"
+                                            <TextBlock Grid.Column="14" Text="{Binding BtnDisconnect, Source={StaticResource Strings}}" FontSize="13"
                                                        Foreground="#E53935" Cursor="Hand"
                                                        VerticalAlignment="Center" HorizontalAlignment="Center"
                                                        TextDecorations="None"
@@ -761,33 +739,33 @@
             <!-- 图表控制栏 -->
             <Grid Grid.Row="0" Margin="0,30,0,20">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="Y轴范围：" Style="{StaticResource ControlLabelStyle}" Margin="0,0,8,0"/>
-                    <TextBlock Text="最小值：" Style="{StaticResource ControlLabelStyle}"/>
+                    <TextBlock Text="{Binding LabelYAxisRange, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}" Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding LabelMinValue, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}"/>
                     <TextBox Text="{Binding YMinText, UpdateSourceTrigger=PropertyChanged}"
                              Width="65" Margin="8,0" TextAlignment="Center"
                              Style="{StaticResource RoundedTextBoxStyle}"/>
-                    <TextBlock Text="最大值：" Style="{StaticResource ControlLabelStyle}" Margin="8,0,0,0"/>
+                    <TextBlock Text="{Binding LabelMaxValue, Source={StaticResource Strings}}" Style="{StaticResource ControlLabelStyle}" Margin="8,0,0,0"/>
                     <TextBox Text="{Binding YMaxText, UpdateSourceTrigger=PropertyChanged}"
                              Width="65" Margin="8,0" TextAlignment="Center"
                              Style="{StaticResource RoundedTextBoxStyle}"/>
-                    <Button Content="应用" Command="{Binding ApplyYRangeCommand}"
+                    <Button Content="{Binding BtnApply, Source={StaticResource Strings}}" Command="{Binding ApplyYRangeCommand}"
                             Margin="12,0,0,0" Style="{StaticResource MediumRoundedButtonStyle}" MinWidth="70"/>
                     <ToggleButton IsChecked="{Binding IsRecording}"
                                   Click="ToggleRecording_Click"
                                   Margin="8,0,0,0" MinWidth="100">
                         <ToggleButton.Style>
                             <Style TargetType="ToggleButton" BasedOn="{StaticResource LargeRoundedToggleButtonStyle}">
-                                <Setter Property="Content" Value="记录"/>
+                                <Setter Property="Content" Value="{Binding BtnRecord, Source={StaticResource Strings}}"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsChecked" Value="True">
-                                        <Setter Property="Content" Value="记录中..."/>
+                                        <Setter Property="Content" Value="{Binding BtnRecording, Source={StaticResource Strings}}"/>
                                         <Setter Property="Background" Value="#C8E6C9"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </ToggleButton.Style>
                     </ToggleButton>
-                    <Button Content="清空曲线" Command="{Binding ClearChartCommand}"
+                    <Button Content="{Binding BtnClearChart, Source={StaticResource Strings}}" Command="{Binding ClearChartCommand}"
                             Margin="20,0,0,0" MinWidth="90"
                             Style="{StaticResource MediumRoundedButtonStyle}" Background="#FFE8D0C5"/>
                 </StackPanel>

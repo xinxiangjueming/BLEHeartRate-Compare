@@ -2,8 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:HeartRateMonitor"
+             xmlns:res="clr-namespace:HeartRateMonitor.Resources"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <res:StringResources x:Key="Strings"/>
     </Application.Resources>
 </Application>

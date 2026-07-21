@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Main Window -->
+  <data name="AppTitle" xml:space="preserve"><value>HeartRateMonitor</value></data>
+  <data name="ChartTitle" xml:space="preserve"><value>实时心率曲线</value></data>
+  <data name="TimeAxis" xml:space="preserve"><value>时间 (s)</value></data>
+
+  <!-- Buttons -->
+  <data name="BtnScan" xml:space="preserve"><value>扫描设备</value></data>
+  <data name="BtnScanning" xml:space="preserve"><value>扫描中...</value></data>
+  <data name="BtnExport" xml:space="preserve"><value>导出数据</value></data>
+  <data name="BtnAutoReconnect" xml:space="preserve"><value>自动重连</value></data>
+  <data name="BtnShowAll" xml:space="preserve"><value>显示全部</value></data>
+  <data name="BtnRecord" xml:space="preserve"><value>记录</value></data>
+  <data name="BtnRecording" xml:space="preserve"><value>记录中...</value></data>
+  <data name="BtnClearChart" xml:space="preserve"><value>清空曲线</value></data>
+  <data name="BtnApply" xml:space="preserve"><value>应用</value></data>
+  <data name="BtnConnect" xml:space="preserve"><value>连接</value></data>
+  <data name="BtnDisconnect" xml:space="preserve"><value>断开</value></data>
+  <data name="BtnOk" xml:space="preserve"><value>确定</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>取消</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>是</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>否</value></data>
+
+  <!-- Tray Menu -->
+  <data name="TrayShow" xml:space="preserve"><value>显示</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>退出</value></data>
+  <data name="TrayMinimized" xml:space="preserve"><value>已最小化到系统托盘，双击图标可恢复</value></data>
+
+  <!-- GroupBox Headers -->
+  <data name="HeaderScanControl" xml:space="preserve"><value>扫描控制</value></data>
+  <data name="HeaderDiscoveredDevices" xml:space="preserve"><value>扫描到的设备</value></data>
+  <data name="HeaderRealtimeData" xml:space="preserve"><value>实时数据</value></data>
+
+  <!-- Table Headers -->
+  <data name="ColDevice" xml:space="preserve"><value>设备</value></data>
+  <data name="ColHeartRate" xml:space="preserve"><value>心率</value></data>
+  <data name="ColBattery" xml:space="preserve"><value>电量</value></data>
+  <data name="ColColor" xml:space="preserve"><value>颜色</value></data>
+  <data name="ColAction" xml:space="preserve"><value>操作</value></data>
+
+  <!-- Labels -->
+  <data name="LabelYAxisRange" xml:space="preserve"><value>Y轴范围：</value></data>
+  <data name="LabelMinValue" xml:space="preserve"><value>最小值：</value></data>
+  <data name="LabelMaxValue" xml:space="preserve"><value>最大值：</value></data>
+
+  <!-- Status Messages -->
+  <data name="StatusReady" xml:space="preserve"><value>就绪</value></data>
+  <data name="StatusScanningStopped" xml:space="preserve"><value>扫描已停止。</value></data>
+  <data name="StatusDetectingBluetooth" xml:space="preserve"><value>正在检测蓝牙...</value></data>
+  <data name="StatusScanningComplete" xml:space="preserve"><value>扫描完成。</value></data>
+  <data name="StatusScanningDevices" xml:space="preserve"><value>正在扫描心率设备...</value></data>
+  <data name="StatusConnecting" xml:space="preserve"><value>正在连接...</value></data>
+  <data name="StatusDeviceConnected" xml:space="preserve"><value>设备 {0} 已连接。</value></data>
+  <data name="StatusDeviceDisconnected" xml:space="preserve"><value>设备 {0} 断开连接。</value></data>
+  <data name="StatusDeviceAlreadyConnected" xml:space="preserve"><value>设备 {0} 已在连接中。</value></data>
+  <data name="StatusDeviceReconnected" xml:space="preserve"><value>设备 {0} 已重新连接。</value></data>
+  <data name="StatusDeviceReconnectFailed" xml:space="preserve"><value>设备 {0} 重连失败。</value></data>
+  <data name="StatusRecordingStarted" xml:space="preserve"><value>记录已开始。</value></data>
+  <data name="StatusRecordingStopped" xml:space="preserve"><value>记录已停止。</value></data>
+  <data name="StatusChartCleared" xml:space="preserve"><value>图表已清空，计时重新开始。</value></data>
+  <data name="StatusDeviceDisconnectedAll" xml:space="preserve"><value>所有设备已断开，记录已停止。</value></data>
+  <data name="StatusDeviceDiscovered" xml:space="preserve"><value>发现心率设备: {0}</value></data>
+  <data name="StatusDeviceDisconnectedAction" xml:space="preserve"><value>设备 {0} 已断开。</value></data>
+
+  <!-- Error Messages -->
+  <data name="ErrorBluetoothNotReady" xml:space="preserve"><value>蓝牙未开启或检测超时，请在系统设置中开启蓝牙后重试。</value></data>
+  <data name="ErrorBluetoothScanFailed" xml:space="preserve"><value>蓝牙扫描启动失败，请检查蓝牙是否已开启。</value></data>
+  <data name="ErrorConnectFailed" xml:space="preserve"><value>连接失败：无法获取设备。</value></data>
+  <data name="ErrorNoDeviceForExport" xml:space="preserve"><value>没有已连接的设备，无法导出数据。</value></data>
+  <data name="ErrorExportFailed" xml:space="preserve"><value>导出数据时出错：{0}</value></data>
+  <data name="ErrorInvalidNumber" xml:space="preserve"><value>请输入有效的数字。</value></data>
+  <data name="ErrorMinMustBeLessThanMax" xml:space="preserve"><value>最小值必须小于最大值。</value></data>
+  <data name="ErrorConnectFirst" xml:space="preserve"><value>请先连接设备再开始记录。</value></data>
+
+  <!-- Confirm Dialogs -->
+  <data name="ConfirmClearChart" xml:space="preserve"><value>确定要清空所有心率曲线吗？此操作将删除所有历史数据并重新计时。</value></data>
+  <data name="ConfirmDisconnect" xml:space="preserve"><value>确定要断开设备 "{0}" 的连接吗？</value></data>
+  <data name="ConfirmCloseWithExport" xml:space="preserve"><value>是否在关闭前导出数据？</value></data>
+  <data name="ConfirmTitle" xml:space="preserve"><value>确认操作</value></data>
+
+  <!-- Message Dialog -->
+  <data name="MessageTitle" xml:space="preserve"><value>提示</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>数据已导出到：{0}</value></data>
+
+  <!-- Export Dialog -->
+  <data name="ExportDialogTitle" xml:space="preserve"><value>导出选项</value></data>
+  <data name="ExportTypeHistory" xml:space="preserve"><value>历史数据</value></data>
+  <data name="ExportTypeSnapshot" xml:space="preserve"><value>当前快照</value></data>
+  <data name="ExportSelectFields" xml:space="preserve"><value>选择要导出的字段</value></data>
+  <data name="ExportBtnExport" xml:space="preserve"><value>导出</value></data>
+  <data name="ExportBtnCancel" xml:space="preserve"><value>取消</value></data>
+  <data name="ExportFilter" xml:space="preserve"><value>CSV 文件 (*.csv)|*.csv</value></data>
+  <data name="ExportFileName" xml:space="preserve"><value>心率数据_{0:yyyyMMdd_HHmmss}.csv</value></data>
+
+  <!-- Export Fields -->
+  <data name="FieldDevice" xml:space="preserve"><value>设备</value></data>
+  <data name="FieldHeartRate" xml:space="preserve"><value>心率</value></data>
+  <data name="FieldRR" xml:space="preserve"><value>RR</value></data>
+  <data name="FieldDfaAlpha1" xml:space="preserve"><value>DFA α1</value></data>
+
+  <!-- Disconnected -->
+  <data name="Disconnected" xml:space="preserve"><value> (已断开)</value></data>
+
+  <!-- Color Names -->
+  <data name="ColorRed" xml:space="preserve"><value>红色</value></data>
+  <data name="ColorOrange" xml:space="preserve"><value>橙色</value></data>
+  <data name="ColorGreen" xml:space="preserve"><value>绿色</value></data>
+  <data name="ColorBlue" xml:space="preserve"><value>蓝色</value></data>
+  <data name="ColorPurple" xml:space="preserve"><value>紫色</value></data>
+  <data name="ColorBlack" xml:space="preserve"><value>黑色</value></data>
+
+  <!-- Bluetooth -->
+  <data name="BleGetDeviceFailed" xml:space="preserve"><value>无法获取 BLE 设备</value></data>
+  <data name="BleGetGattFailed" xml:space="preserve"><value>获取 GATT 服务失败</value></data>
+  <data name="BleHeartRateSubscribeFailed" xml:space="preserve"><value>心率通知订阅失败</value></data>
+  <data name="BleConnectionException" xml:space="preserve"><value>连接异常: {0}</value></data>
+  <data name="BleReconnectSuccess" xml:space="preserve"><value>重连成功</value></data>
+  <data name="BleReconnectFailed" xml:space="preserve"><value>重连失败，已放弃</value></data>
+  <data name="BleDisconnected" xml:space="preserve"><value>断开连接</value></data>
+  <data name="BleConnected" xml:space="preserve"><value>连接成功</value></data>
+  <data name="UnknownDevice" xml:space="preserve"><value>未知设备</value></data>
+
+</root>

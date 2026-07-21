@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Radios;
 using Windows.Storage.Streams;
 using HeartRateMonitor.Models;
+using HeartRateMonitor.Resources;
 
 namespace HeartRateMonitor.Services
 {
@@ -67,12 +69,21 @@ namespace HeartRateMonitor.Services
         {
             StopScan();
 
-            _watcher = new BluetoothLEAdvertisementWatcher();
-            _watcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(HeartRateServiceUuid);
-            _watcher.ScanningMode = BluetoothLEScanningMode.Active;
+            try
+            {
+                _watcher = new BluetoothLEAdvertisementWatcher();
+                _watcher.AdvertisementFilter.Advertisement.ServiceUuids.Add(HeartRateServiceUuid);
+                _watcher.ScanningMode = BluetoothLEScanningMode.Active;
 
-            _watcher.Received += OnAdvertisementReceived;
-            _watcher.Start();
+                _watcher.Received += OnAdvertisementReceived;
+                _watcher.Start();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BLE] 启动扫描失败: {ex.Message}");
+                _watcher = null;
+                ErrorOccurred?.Invoke("", Strings.ErrorBluetoothScanFailed);
+            }
         }
 
         /// <summary>停止扫描</summary>
@@ -117,7 +128,7 @@ namespace HeartRateMonitor.Services
                 var bleDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
                 if (bleDevice == null)
                 {
-                    ErrorOccurred?.Invoke("", "无法获取 BLE 设备");
+                    ErrorOccurred?.Invoke("", Strings.BleGetDeviceFailed);
                     return null;
                 }
 
@@ -160,7 +171,7 @@ namespace HeartRateMonitor.Services
                 var servicesResult = await bleDevice.GetGattServicesAsync();
                 if (servicesResult.Status != GattCommunicationStatus.Success)
                 {
-                    ErrorOccurred?.Invoke(deviceId, "获取 GATT 服务失败");
+                    ErrorOccurred?.Invoke(deviceId, Strings.BleGetGattFailed);
                     model.Status = DeviceStatus.Failed;
                     return null;
                 }
@@ -170,7 +181,7 @@ namespace HeartRateMonitor.Services
                 // 订阅心率服务
                 if (!await SubscribeHeartRate(handle, servicesResult.Services))
                 {
-                    ErrorOccurred?.Invoke(deviceId, "心率通知订阅失败");
+                    ErrorOccurred?.Invoke(deviceId, Strings.BleHeartRateSubscribeFailed);
                 }
 
                 // 订阅电池服务
@@ -188,7 +199,7 @@ namespace HeartRateMonitor.Services
             }
             catch (Exception ex)
             {
-                ErrorOccurred?.Invoke("", $"连接异常: {ex.Message}");
+                ErrorOccurred?.Invoke("", string.Format(Strings.BleConnectionException, ex.Message));
                 return null;
             }
         }
@@ -259,7 +270,7 @@ namespace HeartRateMonitor.Services
                         OnConnectionStatusChanged(deviceId, s.ConnectionStatus);
 
                     model.Status = DeviceStatus.Connected;
-                    model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 重连成功");
+                    model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {Strings.BleReconnectSuccess}");
                     DeviceReconnected?.Invoke(deviceId);
                     return;
                 }
@@ -273,7 +284,7 @@ namespace HeartRateMonitor.Services
 
             // 重连失败
             model.Status = DeviceStatus.Failed;
-            model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 重连失败，已放弃");
+            model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {Strings.BleReconnectFailed}");
             DeviceReconnectFailed?.Invoke(deviceId);
         }
 
@@ -287,7 +298,7 @@ namespace HeartRateMonitor.Services
             if (status == BluetoothConnectionStatus.Disconnected)
             {
                 handle.Model.Status = DeviceStatus.Disconnected;
-                handle.Model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 断开连接");
+                handle.Model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {Strings.BleDisconnected}");
 
                 // 清除实时数据
                 handle.Model.HeartRate = null;
@@ -487,9 +498,103 @@ namespace HeartRateMonitor.Services
         /// <summary>是否配置了自动重连</summary>
         public bool AutoReconnect { get; set; }
 
+        /// <summary>
+        /// 异步检测蓝牙状态并引导用户开启。
+        /// 返回 true 表示蓝牙已就绪，false 表示用户取消或超时。
+        /// </summary>
+        public static async Task<bool> EnsureBluetoothEnabledAsync()
+        {
+            try
+            {
+                var radios = await Radio.GetRadiosAsync();
+
+                if (radios == null || radios.Count == 0)
+                    return false;
+
+                // 查找蓝牙 Radio：匹配常见蓝牙名称（兼容中英日韩等语言）
+                Radio? bluetoothRadio = null;
+                foreach (var radio in radios)
+                {
+                    var name = radio.Name ?? "";
+                    if (name.Contains("Bluetooth", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("蓝牙", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("ブルートゥース", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("블루투스", StringComparison.OrdinalIgnoreCase))
+                    {
+                        bluetoothRadio = radio;
+                        break;
+                    }
+                }
+
+                // 如果以上都没匹配到，取第一个 Radio（通常就是蓝牙）
+                if (bluetoothRadio == null && radios.Count > 0)
+                    bluetoothRadio = radios[0];
+
+                if (bluetoothRadio == null)
+                    return false;
+
+                // 蓝牙已开启
+                if (bluetoothRadio.State == RadioState.On)
+                    return true;
+
+                // 蓝牙关闭 → 打开设置页面
+                OpenBluetoothSettings();
+
+                // 轮询等待用户开启（最多 30 秒）
+                var deadline = DateTime.Now.AddSeconds(30);
+                while (DateTime.Now < deadline)
+                {
+                    await Task.Delay(1000);
+                    var updatedRadios = await Radio.GetRadiosAsync();
+                    if (updatedRadios != null)
+                    {
+                        foreach (var r in updatedRadios)
+                        {
+                            if (r.State == RadioState.On)
+                                return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 打开 Windows 蓝牙设置页面
+        /// </summary>
+        private static void OpenBluetoothSettings()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "ms-settings:bluetooth",
+                    UseShellExecute = true
+                });
+            }
+            catch
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "rundll32.exe",
+                        Arguments = "bthprops.cpl,,BluetoothSettings",
+                        UseShellExecute = false
+                    });
+                }
+                catch { }
+            }
+        }
+
         private static string CleanDeviceName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) return "未知设备";
+            if (string.IsNullOrWhiteSpace(name)) return Strings.UnknownDevice;
             return name.Trim();
         }
 

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -26,11 +26,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="icon.ico" />
+		<Resource Include="icon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
 	</ItemGroup>
 
 </Project>

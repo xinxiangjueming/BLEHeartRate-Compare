@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Main Window -->
+  <data name="AppTitle" xml:space="preserve"><value>HeartRateMonitor</value></data>
+  <data name="ChartTitle" xml:space="preserve"><value>Real-time Heart Rate</value></data>
+  <data name="TimeAxis" xml:space="preserve"><value>Time (s)</value></data>
+
+  <!-- Buttons -->
+  <data name="BtnScan" xml:space="preserve"><value>Scan Devices</value></data>
+  <data name="BtnScanning" xml:space="preserve"><value>Scanning...</value></data>
+  <data name="BtnExport" xml:space="preserve"><value>Export Data</value></data>
+  <data name="BtnAutoReconnect" xml:space="preserve"><value>Auto Reconnect</value></data>
+  <data name="BtnShowAll" xml:space="preserve"><value>Show All</value></data>
+  <data name="BtnRecord" xml:space="preserve"><value>Record</value></data>
+  <data name="BtnRecording" xml:space="preserve"><value>Recording...</value></data>
+  <data name="BtnClearChart" xml:space="preserve"><value>Clear Chart</value></data>
+  <data name="BtnApply" xml:space="preserve"><value>Apply</value></data>
+  <data name="BtnConnect" xml:space="preserve"><value>Connect</value></data>
+  <data name="BtnDisconnect" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="BtnOk" xml:space="preserve"><value>OK</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>Yes</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>No</value></data>
+
+  <!-- Tray Menu -->
+  <data name="TrayShow" xml:space="preserve"><value>Show</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>Exit</value></data>
+  <data name="TrayMinimized" xml:space="preserve"><value>Minimized to tray. Double-click to restore.</value></data>
+
+  <!-- GroupBox Headers -->
+  <data name="HeaderScanControl" xml:space="preserve"><value>Scan Control</value></data>
+  <data name="HeaderDiscoveredDevices" xml:space="preserve"><value>Discovered Devices</value></data>
+  <data name="HeaderRealtimeData" xml:space="preserve"><value>Real-time Data</value></data>
+
+  <!-- Table Headers -->
+  <data name="ColDevice" xml:space="preserve"><value>Device</value></data>
+  <data name="ColHeartRate" xml:space="preserve"><value>Heart Rate</value></data>
+  <data name="ColBattery" xml:space="preserve"><value>Battery</value></data>
+  <data name="ColColor" xml:space="preserve"><value>Color</value></data>
+  <data name="ColAction" xml:space="preserve"><value>Action</value></data>
+
+  <!-- Labels -->
+  <data name="LabelYAxisRange" xml:space="preserve"><value>Y-Axis Range:</value></data>
+  <data name="LabelMinValue" xml:space="preserve"><value>Min:</value></data>
+  <data name="LabelMaxValue" xml:space="preserve"><value>Max:</value></data>
+
+  <!-- Status Messages -->
+  <data name="StatusReady" xml:space="preserve"><value>Ready</value></data>
+  <data name="StatusScanningStopped" xml:space="preserve"><value>Scan stopped.</value></data>
+  <data name="StatusDetectingBluetooth" xml:space="preserve"><value>Detecting Bluetooth...</value></data>
+  <data name="StatusScanningComplete" xml:space="preserve"><value>Scan complete.</value></data>
+  <data name="StatusScanningDevices" xml:space="preserve"><value>Scanning for heart rate devices...</value></data>
+  <data name="StatusConnecting" xml:space="preserve"><value>Connecting...</value></data>
+  <data name="StatusDeviceConnected" xml:space="preserve"><value>Device {0} connected.</value></data>
+  <data name="StatusDeviceDisconnected" xml:space="preserve"><value>Device {0} disconnected.</value></data>
+  <data name="StatusDeviceAlreadyConnected" xml:space="preserve"><value>Device {0} is already connected.</value></data>
+  <data name="StatusDeviceReconnected" xml:space="preserve"><value>Device {0} reconnected.</value></data>
+  <data name="StatusDeviceReconnectFailed" xml:space="preserve"><value>Device {0} reconnect failed.</value></data>
+  <data name="StatusRecordingStarted" xml:space="preserve"><value>Recording started.</value></data>
+  <data name="StatusRecordingStopped" xml:space="preserve"><value>Recording stopped.</value></data>
+  <data name="StatusChartCleared" xml:space="preserve"><value>Chart cleared, timer reset.</value></data>
+  <data name="StatusDeviceDisconnectedAll" xml:space="preserve"><value>All devices disconnected, recording stopped.</value></data>
+  <data name="StatusDeviceDiscovered" xml:space="preserve"><value>Heart rate device found: {0}</value></data>
+  <data name="StatusDeviceDisconnectedAction" xml:space="preserve"><value>Device {0} disconnected.</value></data>
+
+  <!-- Error Messages -->
+  <data name="ErrorBluetoothNotReady" xml:space="preserve"><value>Bluetooth not enabled or detection timed out. Please enable Bluetooth in system settings.</value></data>
+  <data name="ErrorBluetoothScanFailed" xml:space="preserve"><value>Bluetooth scan failed to start. Please check if Bluetooth is enabled.</value></data>
+  <data name="ErrorConnectFailed" xml:space="preserve"><value>Connection failed: Unable to get device.</value></data>
+  <data name="ErrorNoDeviceForExport" xml:space="preserve"><value>No connected devices, cannot export data.</value></data>
+  <data name="ErrorExportFailed" xml:space="preserve"><value>Export failed: {0}</value></data>
+  <data name="ErrorInvalidNumber" xml:space="preserve"><value>Please enter a valid number.</value></data>
+  <data name="ErrorMinMustBeLessThanMax" xml:space="preserve"><value>Min value must be less than max value.</value></data>
+  <data name="ErrorConnectFirst" xml:space="preserve"><value>Please connect a device before recording.</value></data>
+
+  <!-- Confirm Dialogs -->
+  <data name="ConfirmClearChart" xml:space="preserve"><value>Clear all heart rate curves? This will delete all history and reset the timer.</value></data>
+  <data name="ConfirmDisconnect" xml:space="preserve"><value>Disconnect device "{0}"?</value></data>
+  <data name="ConfirmCloseWithExport" xml:space="preserve"><value>Export data before closing?</value></data>
+  <data name="ConfirmTitle" xml:space="preserve"><value>Confirm</value></data>
+
+  <!-- Message Dialog -->
+  <data name="MessageTitle" xml:space="preserve"><value>Notice</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>Data exported to: {0}</value></data>
+
+  <!-- Export Dialog -->
+  <data name="ExportDialogTitle" xml:space="preserve"><value>Export Options</value></data>
+  <data name="ExportTypeHistory" xml:space="preserve"><value>History Data</value></data>
+  <data name="ExportTypeSnapshot" xml:space="preserve"><value>Current Snapshot</value></data>
+  <data name="ExportSelectFields" xml:space="preserve"><value>Select fields to export</value></data>
+  <data name="ExportBtnExport" xml:space="preserve"><value>Export</value></data>
+  <data name="ExportBtnCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="ExportFilter" xml:space="preserve"><value>CSV Files (*.csv)|*.csv</value></data>
+  <data name="ExportFileName" xml:space="preserve"><value>HeartRateData_{0:yyyyMMdd_HHmmss}.csv</value></data>
+
+  <!-- Export Fields -->
+  <data name="FieldDevice" xml:space="preserve"><value>Device</value></data>
+  <data name="FieldHeartRate" xml:space="preserve"><value>Heart Rate</value></data>
+  <data name="FieldRR" xml:space="preserve"><value>RR</value></data>
+  <data name="FieldDfaAlpha1" xml:space="preserve"><value>DFA α1</value></data>
+
+  <!-- Disconnected -->
+  <data name="Disconnected" xml:space="preserve"><value> (Disconnected)</value></data>
+
+  <!-- Color Names -->
+  <data name="ColorRed" xml:space="preserve"><value>Red</value></data>
+  <data name="ColorOrange" xml:space="preserve"><value>Orange</value></data>
+  <data name="ColorGreen" xml:space="preserve"><value>Green</value></data>
+  <data name="ColorBlue" xml:space="preserve"><value>Blue</value></data>
+  <data name="ColorPurple" xml:space="preserve"><value>Purple</value></data>
+  <data name="ColorBlack" xml:space="preserve"><value>Black</value></data>
+
+  <!-- Bluetooth -->
+  <data name="BleGetDeviceFailed" xml:space="preserve"><value>Failed to get BLE device</value></data>
+  <data name="BleGetGattFailed" xml:space="preserve"><value>Failed to get GATT services</value></data>
+  <data name="BleHeartRateSubscribeFailed" xml:space="preserve"><value>Heart rate notification subscription failed</value></data>
+  <data name="BleConnectionException" xml:space="preserve"><value>Connection error: {0}</value></data>
+  <data name="BleReconnectSuccess" xml:space="preserve"><value>Reconnected</value></data>
+  <data name="BleReconnectFailed" xml:space="preserve"><value>Reconnect failed, given up</value></data>
+  <data name="BleDisconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="BleConnected" xml:space="preserve"><value>Connected</value></data>
+  <data name="UnknownDevice" xml:space="preserve"><value>Unknown Device</value></data>
+
+</root>

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using HeartRateMonitor.Models;
+using HeartRateMonitor.Resources;
 
 namespace HeartRateMonitor.Services
 {
@@ -28,7 +29,8 @@ namespace HeartRateMonitor.Services
             public double?[] RMSSDData { get; init; } = Array.Empty<double?>();
             public double?[] DFA_alpha1Data { get; init; } = Array.Empty<double?>();
             public double?[] DFA_alpha2Data { get; init; } = Array.Empty<double?>();
-            public int?[] BatteryData { get; init; } = Array.Empty<int?>();
+            public int? FirstBattery { get; init; }
+            public int? LastBattery { get; init; }
             public List<string> ConnectionEvents { get; init; } = new();
         }
 
@@ -41,12 +43,11 @@ namespace HeartRateMonitor.Services
             public int? HeartRate { get; init; }
             public double? LastRR { get; init; }
             public HrvMetrics? Hrv { get; init; }
-            public int? BatteryLevel { get; init; }
         }
 
         // ── 可导出的字段列表 ─────────────────────────────
 
-        public static readonly string[] AvailableFields = { "设备", "心率", "RR", "SDNN", "RMSSD", "DFA α1", "DFA α2", "电量" };
+        public static readonly string[] AvailableFields = { Strings.FieldDevice, Strings.FieldHeartRate, Strings.FieldRR, Strings.FieldDfaAlpha1 };
 
         // ── 历史数据导出 ─────────────────────────────────
 
@@ -57,15 +58,15 @@ namespace HeartRateMonitor.Services
         /// <param name="devices">各设备的时间序列数据</param>
         /// <param name="selectedFields">用户选择的导出字段</param>
         public static string GenerateHistoryCsv(
-            int[] timeLabels,
+            DateTime[] timeLabels,
             IReadOnlyList<DeviceTimeSeries> devices,
             IReadOnlyList<string> selectedFields)
         {
             var csv = new StringBuilder();
-            var timeSeriesFields = selectedFields.Where(f => f != "设备").ToList();
+            var timeSeriesFields = selectedFields.Where(f => f != Strings.FieldDevice).ToList();
 
             // ── 表头 ──
-            var headers = new List<string> { "时间" };
+            var headers = new List<string> { "Time" };
             foreach (var dev in devices)
             {
                 foreach (var field in timeSeriesFields)
@@ -76,7 +77,7 @@ namespace HeartRateMonitor.Services
             // ── 数据行 ──
             for (int i = 0; i < timeLabels.Length; i++)
             {
-                var row = new List<string> { $"{timeLabels[i]}s" };
+                var row = new List<string> { $"{timeLabels[i]:yyyy-MM-dd HH:mm:ss}" };
 
                 foreach (var dev in devices)
                 {
@@ -86,11 +87,7 @@ namespace HeartRateMonitor.Services
                         {
                             "心率" => SafeGet(dev.HeartRateData, i, v => v.ToString()!),
                             "RR" => SafeGet(dev.RRData, i, v => v.ToString("F1")),
-                            "SDNN" => SafeGet(dev.SDNNData, i, v => v.ToString("F1")),
-                            "RMSSD" => SafeGet(dev.RMSSDData, i, v => v.ToString("F1")),
                             "DFA α1" => SafeGet(dev.DFA_alpha1Data, i, v => v.ToString("F2")),
-                            "DFA α2" => SafeGet(dev.DFA_alpha2Data, i, v => v.ToString("F2")),
-                            "电量" => SafeGet(dev.BatteryData, i, v => v.ToString()!),
                             _ => ""
                         };
                         row.Add(value);
@@ -102,7 +99,15 @@ namespace HeartRateMonitor.Services
             // ── 汇总区 ──
             csv.AppendLine();
             csv.AppendLine("# Summary");
-            csv.AppendLine($"# Total Duration: {timeLabels.Length}s");
+            if (timeLabels.Length > 1)
+            {
+                var duration = timeLabels[^1] - timeLabels[0];
+                csv.AppendLine($"# Total Duration: {duration.TotalSeconds:F0}s");
+            }
+            else
+            {
+                csv.AppendLine($"# Total Duration: {timeLabels.Length} samples");
+            }
 
             foreach (var dev in devices)
             {
@@ -118,9 +123,9 @@ namespace HeartRateMonitor.Services
                     csv.AppendLine($"# Device: {dev.Alias}, Avg HR: --, Max: --, Min: --");
                 }
 
-                var lastBattery = dev.BatteryData.LastOrDefault();
-                string batteryStr = lastBattery.HasValue ? $"{lastBattery.Value}%" : "--";
-                csv.AppendLine($"# Device: {dev.Alias}, Battery: {batteryStr}");
+                string startBattery = dev.FirstBattery.HasValue ? $"{dev.FirstBattery.Value}%" : "--";
+                string endBattery = dev.LastBattery.HasValue ? $"{dev.LastBattery.Value}%" : "--";
+                csv.AppendLine($"# Device: {dev.Alias}, Battery: Start={startBattery}, End={endBattery}");
 
                 foreach (var evt in dev.ConnectionEvents)
                     csv.AppendLine($"# Event: {evt}");
@@ -139,10 +144,10 @@ namespace HeartRateMonitor.Services
             IReadOnlyList<string> selectedFields)
         {
             var csv = new StringBuilder();
-            var fields = selectedFields.Where(f => f != "设备").ToList();
+            var fields = selectedFields.Where(f => f != Strings.FieldDevice).ToList();
 
             // 表头
-            csv.AppendLine(CsvRow(new[] { "设备" }.Concat(fields).ToList()));
+            csv.AppendLine(CsvRow(new[] { Strings.FieldDevice }.Concat(fields).ToList()));
 
             // 数据行
             foreach (var dev in devices)
@@ -154,11 +159,7 @@ namespace HeartRateMonitor.Services
                     {
                         "心率" => dev.HeartRate?.ToString() ?? "",
                         "RR" => dev.LastRR?.ToString("F1") ?? "",
-                        "SDNN" => dev.Hrv?.SDNN.ToString("F1") ?? "",
-                        "RMSSD" => dev.Hrv?.RMSSD.ToString("F1") ?? "",
                         "DFA α1" => dev.Hrv?.DFA_alpha1?.ToString("F2") ?? "",
-                        "DFA α2" => dev.Hrv?.DFA_alpha2?.ToString("F2") ?? "",
-                        "电量" => dev.BatteryLevel?.ToString() ?? "",
                         _ => ""
                     };
                     row.Add(value);
@@ -183,7 +184,7 @@ namespace HeartRateMonitor.Services
         /// 生成默认文件名
         /// </summary>
         public static string GenerateFileName()
-            => $"心率数据_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            => string.Format(Strings.ExportFileName, DateTime.Now);
 
         // ── 内部辅助 ─────────────────────────────────────
 

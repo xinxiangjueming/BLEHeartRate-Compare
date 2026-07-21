@@ -11,6 +11,7 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using HeartRateMonitor.Models;
 using HeartRateMonitor.Services;
+using HeartRateMonitor.Resources;
 
 namespace HeartRateMonitor.ViewModels
 {
@@ -35,7 +36,7 @@ namespace HeartRateMonitor.ViewModels
         private readonly BluetoothService _bluetoothService = new();
         private readonly DispatcherTimer _timer;
         private DateTime? _sessionStartTime;
-        private readonly Queue<int> _timeLabels = new();
+        private readonly Queue<DateTime> _timeLabels = new();
 
         // ── 扫描结果 ─────────────────────────────────────
 
@@ -59,6 +60,9 @@ namespace HeartRateMonitor.ViewModels
         private readonly ObservableCollection<ConnectedDevice> _connectedDevices = new();
         /// <summary>已连接设备列表，绑定到 UI 表格和图例</summary>
         public ObservableCollection<ConnectedDevice> ConnectedDevices => _connectedDevices;
+
+        /// <summary>是否有已连接的设备</summary>
+        public bool HasConnectedDevices => _connectedDevices.Count > 0;
 
         // ── 图表 ─────────────────────────────────────────
 
@@ -137,7 +141,7 @@ namespace HeartRateMonitor.ViewModels
 
         // ── 状态信息 ─────────────────────────────────────
 
-        private string _statusMessage = "就绪";
+        private string _statusMessage = Strings.StatusReady;
         public string StatusMessage
         {
             get => _statusMessage;
@@ -194,14 +198,14 @@ namespace HeartRateMonitor.ViewModels
 
         private void InitializePlotModel()
         {
-            var model = new PlotModel { Title = "实时心率曲线" };
+            var model = new PlotModel { Title = Strings.ChartTitle };
             model.Background = OxyColors.Transparent;
 
             model.Axes.Add(new LinearAxis
             {
                 Key = "XAxis",
                 Position = AxisPosition.Bottom,
-                Title = "时间 (s)",
+                Title = Strings.TimeAxis,
                 Minimum = 0,
                 Maximum = 10,
                 AbsoluteMinimum = 0,
@@ -236,7 +240,7 @@ namespace HeartRateMonitor.ViewModels
         /// <summary>清洗设备名称</summary>
         private static string CleanDeviceName(string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) return "未知设备";
+            if (string.IsNullOrWhiteSpace(name)) return Strings.UnknownDevice;
             return name.Trim();
         }
 
@@ -251,7 +255,7 @@ namespace HeartRateMonitor.ViewModels
         // 扫描
         // ══════════════════════════════════════════════════
 
-        private void StartScan()
+        private async void StartScan()
         {
             // 正在扫描时点击则停止
             if (IsScanning)
@@ -259,7 +263,17 @@ namespace HeartRateMonitor.ViewModels
                 _scanTimer?.Stop();
                 _bluetoothService.StopScan();
                 IsScanning = false;
-                StatusMessage = "扫描已停止。";
+                StatusMessage = Strings.StatusScanningStopped;
+                return;
+            }
+
+            // 检测蓝牙状态，未开启则引导用户
+            StatusMessage = Strings.StatusDetectingBluetooth;
+            bool bluetoothReady = await BluetoothService.EnsureBluetoothEnabledAsync();
+            if (!bluetoothReady)
+            {
+                ShowError(Strings.ErrorBluetoothNotReady);
+                StatusMessage = Strings.StatusReady;
                 return;
             }
 
@@ -267,7 +281,7 @@ namespace HeartRateMonitor.ViewModels
             _discoveredAddresses.Clear();
             _deviceDiscoveryTimes.Clear();
 
-            StatusMessage = "正在扫描心率设备...";
+            StatusMessage = Strings.StatusScanningDevices;
             IsScanning = true;
 
             _bluetoothService.StartScan();
@@ -280,7 +294,7 @@ namespace HeartRateMonitor.ViewModels
                 _scanTimer.Stop();
                 _bluetoothService.StopScan();
                 IsScanning = false;
-                StatusMessage = "扫描完成。";
+                StatusMessage = Strings.StatusScanningComplete;
             };
             _scanTimer.Start();
 
@@ -345,7 +359,7 @@ namespace HeartRateMonitor.ViewModels
                 _discoveredAddresses[display] = result.BluetoothAddress;
                 _discoveredDevices.Add(display);
                 _deviceDiscoveryTimes[display] = DateTime.Now;
-                StatusMessage = $"发现心率设备: {display}";
+                StatusMessage = string.Format(Strings.StatusDeviceDiscovered, display);
             });
         }
 
@@ -362,20 +376,20 @@ namespace HeartRateMonitor.ViewModels
             if (!_discoveredAddresses.TryGetValue(display, out ulong address))
                 return;
 
-            StatusMessage = "正在连接...";
+            StatusMessage = Strings.StatusConnecting;
 
             var model = await _bluetoothService.ConnectAsync(address, display);
 
             if (model == null)
             {
-                ShowError("连接失败：无法获取设备。");
+                ShowError(Strings.ErrorConnectFailed);
                 return;
             }
 
             // 检查是否已存在于 UI 列表中（已连接场景）
             if (_connectedDevices.Any(d => d.Model.DeviceId == model.DeviceId))
             {
-                StatusMessage = $"设备 {model.Alias} 已在连接中。";
+                StatusMessage = string.Format(Strings.StatusDeviceAlreadyConnected, model.Alias);
                 return;
             }
 
@@ -430,14 +444,14 @@ namespace HeartRateMonitor.ViewModels
             _discoveredDevices.Remove(model.CleanName);
             _discoveredAddresses.Remove(model.CleanName);
 
-            StatusMessage = $"设备 {model.Alias} 已连接。";
+            StatusMessage = string.Format(Strings.StatusDeviceConnected, model.Alias);
         }
 
         private void OnDeviceConnected(string deviceId)
         {
             var model = _bluetoothService.GetDeviceModel(deviceId);
             if (model != null)
-                model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 连接成功");
+                model.ConnectionEvents.Add($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {Strings.BleConnected}");
         }
 
         // ── 自动保存 ─────────────────────────────────────
@@ -454,7 +468,7 @@ namespace HeartRateMonitor.ViewModels
                 var connected = _connectedDevices.FirstOrDefault(d => d.Model.DeviceId == deviceId);
                 if (connected == null) return;
 
-                StatusMessage = $"设备 {connected.Model.Alias} 断开连接。";
+                StatusMessage = string.Format(Strings.StatusDeviceDisconnected, connected.Model.Alias);
 
                 ShowHrvColumns = _connectedDevices.Any(c => c.Model.IsConnected && c.Model.HeartRate.HasValue && c.Model.LastRR.HasValue);
 
@@ -471,7 +485,7 @@ namespace HeartRateMonitor.ViewModels
             {
                 var model = _bluetoothService.GetDeviceModel(deviceId);
                 if (model != null)
-                    StatusMessage = $"设备 {model.Alias} 已重新连接。";
+                    StatusMessage = string.Format(Strings.StatusDeviceReconnected, model.Alias);
             });
         }
 
@@ -481,7 +495,7 @@ namespace HeartRateMonitor.ViewModels
             {
                 var model = _bluetoothService.GetDeviceModel(deviceId);
                 if (model != null)
-                    StatusMessage = $"设备 {model.Alias} 重连失败。";
+                    StatusMessage = string.Format(Strings.StatusDeviceReconnectFailed, model.Alias);
             });
         }
 
@@ -518,7 +532,7 @@ namespace HeartRateMonitor.ViewModels
                 double currentSeconds = (now - _sessionStartTime.Value).TotalSeconds;
                 int currentSecond = (int)currentSeconds;
 
-                _timeLabels.Enqueue(currentSecond);
+                _timeLabels.Enqueue(DateTime.Now);
                 while (_timeLabels.Count > MaxDataPoints)
                     _timeLabels.Dequeue();
 
@@ -625,7 +639,7 @@ namespace HeartRateMonitor.ViewModels
         {
             if (!double.TryParse(YMinText, out double min) || !double.TryParse(YMaxText, out double max))
             {
-                ShowError("请输入有效的数字。");
+                ShowError(Strings.ErrorInvalidNumber);
                 return;
             }
 
@@ -634,7 +648,7 @@ namespace HeartRateMonitor.ViewModels
 
             if (min >= max)
             {
-                ShowError("最小值必须小于最大值。");
+                ShowError(Strings.ErrorMinMustBeLessThanMax);
                 return;
             }
 
@@ -660,20 +674,20 @@ namespace HeartRateMonitor.ViewModels
                 if (_connectedDevices.Count == 0)
                 {
                     IsRecording = false;
-                    ShowError("请先连接设备再开始记录。");
+                    ShowError(Strings.ErrorConnectFirst);
                     return;
                 }
 
                 _sessionStartTime = DateTime.Now;
                 _timer.Start();
                 UpdateXAxisRange();
-                StatusMessage = "记录已开始。";
+                StatusMessage = Strings.StatusRecordingStarted;
             }
             else
             {
                 // 用户点击后 IsRecording 刚变为 false → 停止记录
                 _timer.Stop();
-                StatusMessage = "记录已停止。";
+                StatusMessage = Strings.StatusRecordingStopped;
             }
         }
 
@@ -683,7 +697,7 @@ namespace HeartRateMonitor.ViewModels
 
         private void ClearChart()
         {
-            if (!ShowConfirmDialog("确定要清空所有心率曲线吗？此操作将删除所有历史数据并重新计时。"))
+            if (!ShowConfirmDialog(Strings.ConfirmClearChart))
                 return;
 
             _sessionStartTime = DateTime.Now;
@@ -712,7 +726,7 @@ namespace HeartRateMonitor.ViewModels
             }
 
             SafeInvalidatePlot(true);
-            StatusMessage = "图表已清空，计时重新开始。";
+            StatusMessage = Strings.StatusChartCleared;
         }
 
         // ══════════════════════════════════════════════════
@@ -723,7 +737,7 @@ namespace HeartRateMonitor.ViewModels
         {
             if (connected == null || !connected.Model.IsConnected) return;
 
-            if (!ShowConfirmDialog($"确定要断开设备 \"{connected.Model.Alias}\" 的连接吗？"))
+            if (!ShowConfirmDialog(string.Format(Strings.ConfirmDisconnect, connected.Model.Alias)))
                 return;
 
             await _bluetoothService.DisconnectAsync(connected.Model.DeviceId);
@@ -737,7 +751,7 @@ namespace HeartRateMonitor.ViewModels
 
             _connectedDevices.Remove(connected);
             connected.Model.Dispose();
-            StatusMessage = $"设备 {connected.Model.Alias} 已断开。";
+            StatusMessage = string.Format(Strings.StatusDeviceDisconnectedAction, connected.Model.Alias);
 
             // 所有设备都已手动断开，停止记录
             if (_connectedDevices.Count == 0)
@@ -745,7 +759,7 @@ namespace HeartRateMonitor.ViewModels
                 _timer.Stop();
                 IsRecording = false;
                 _sessionStartTime = null;
-                StatusMessage = "所有设备已断开，记录已停止。";
+                StatusMessage = Strings.StatusDeviceDisconnectedAll;
             }
         }
 
@@ -757,7 +771,7 @@ namespace HeartRateMonitor.ViewModels
         {
             if (_connectedDevices.Count == 0)
             {
-                ShowError("没有已连接的设备，无法导出数据。");
+                ShowError(Strings.ErrorNoDeviceForExport);
                 return;
             }
 
@@ -782,18 +796,18 @@ namespace HeartRateMonitor.ViewModels
                 {
                     FileName = ExportService.GenerateFileName(),
                     DefaultExt = ".csv",
-                    Filter = "CSV 文件 (*.csv)|*.csv"
+                    Filter = Strings.ExportFilter
                 };
 
                 if (saveDialog.ShowDialog() == true)
                 {
                     ExportService.SaveToFile(saveDialog.FileName, csvContent);
-                    ShowMessage($"数据已导出到：{saveDialog.FileName}");
+                    ShowMessage(string.Format(Strings.ExportSuccess, saveDialog.FileName));
                 }
             }
             catch (Exception ex)
             {
-                ShowError($"导出数据时出错：{ex.Message}");
+                ShowError(string.Format(Strings.ErrorExportFailed, ex.Message));
             }
         }
 
@@ -809,7 +823,8 @@ namespace HeartRateMonitor.ViewModels
                 RMSSDData = c.RMSSDHistory.ToArray(),
                 DFA_alpha1Data = c.DFA_alpha1History.ToArray(),
                 DFA_alpha2Data = c.DFA_alpha2History.ToArray(),
-                BatteryData = c.BatteryHistory.ToArray(),
+                FirstBattery = c.BatteryHistory.FirstOrDefault(),
+                LastBattery = c.BatteryHistory.LastOrDefault(),
                 ConnectionEvents = new List<string>(c.Model.ConnectionEvents)
             }).ToList();
 
@@ -823,8 +838,7 @@ namespace HeartRateMonitor.ViewModels
                 Alias = c.Model.Alias,
                 HeartRate = c.Model.HeartRate,
                 LastRR = c.Model.LastRR,
-                Hrv = c.Model.Hrv,
-                BatteryLevel = c.Model.BatteryLevel
+                Hrv = c.Model.Hrv
             }).ToList();
 
             return ExportService.GenerateSnapshotCsv(devices, selectedFields);
@@ -877,7 +891,7 @@ namespace HeartRateMonitor.ViewModels
             if (_connectedDevices.Count == 0)
                 return true;
 
-            if (!ShowConfirmDialog("是否在关闭前导出数据？"))
+            if (!ShowConfirmDialog(Strings.ConfirmCloseWithExport))
                 return true;
 
             ExportData();

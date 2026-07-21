@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="AppTitle" xml:space="preserve"><value>HeartRateMonitor</value></data>
+  <data name="ChartTitle" xml:space="preserve"><value>リアルタイム心拍数</value></data>
+  <data name="TimeAxis" xml:space="preserve"><value>時間 (s)</value></data>
+
+  <data name="BtnScan" xml:space="preserve"><value>スキャン</value></data>
+  <data name="BtnScanning" xml:space="preserve"><value>スキャン中...</value></data>
+  <data name="BtnExport" xml:space="preserve"><value>エクスポート</value></data>
+  <data name="BtnAutoReconnect" xml:space="preserve"><value>自動再接続</value></data>
+  <data name="BtnShowAll" xml:space="preserve"><value>全て表示</value></data>
+  <data name="BtnRecord" xml:space="preserve"><value>記録</value></data>
+  <data name="BtnRecording" xml:space="preserve"><value>記録中...</value></data>
+  <data name="BtnClearChart" xml:space="preserve"><value>クリア</value></data>
+  <data name="BtnApply" xml:space="preserve"><value>適用</value></data>
+  <data name="BtnConnect" xml:space="preserve"><value>接続</value></data>
+  <data name="BtnDisconnect" xml:space="preserve"><value>切断</value></data>
+  <data name="BtnOk" xml:space="preserve"><value>OK</value></data>
+  <data name="BtnCancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="BtnYes" xml:space="preserve"><value>はい</value></data>
+  <data name="BtnNo" xml:space="preserve"><value>いいえ</value></data>
+
+  <data name="TrayShow" xml:space="preserve"><value>表示</value></data>
+  <data name="TrayExit" xml:space="preserve"><value>終了</value></data>
+  <data name="TrayMinimized" xml:space="preserve"><value>トレイに最小化しました。ダブルクリックで復元</value></data>
+
+  <data name="HeaderScanControl" xml:space="preserve"><value>スキャン制御</value></data>
+  <data name="HeaderDiscoveredDevices" xml:space="preserve"><value>検出デバイス</value></data>
+  <data name="HeaderRealtimeData" xml:space="preserve"><value>リアルタイムデータ</value></data>
+
+  <data name="ColDevice" xml:space="preserve"><value>デバイス</value></data>
+  <data name="ColHeartRate" xml:space="preserve"><value>心拍数</value></data>
+  <data name="ColBattery" xml:space="preserve"><value>電池</value></data>
+  <data name="ColColor" xml:space="preserve"><value>色</value></data>
+  <data name="ColAction" xml:space="preserve"><value>操作</value></data>
+
+  <data name="LabelYAxisRange" xml:space="preserve"><value>Y軸範囲：</value></data>
+  <data name="LabelMinValue" xml:space="preserve"><value>最小値：</value></data>
+  <data name="LabelMaxValue" xml:space="preserve"><value>最大値：</value></data>
+
+  <data name="StatusReady" xml:space="preserve"><value>準備完了</value></data>
+  <data name="StatusScanningStopped" xml:space="preserve"><value>スキャンを停止しました。</value></data>
+  <data name="StatusDetectingBluetooth" xml:space="preserve"><value>Bluetoothを検出中...</value></data>
+  <data name="StatusScanningComplete" xml:space="preserve"><value>スキャン完了。</value></data>
+  <data name="StatusScanningDevices" xml:space="preserve"><value>心拍デバイスをスキャン中...</value></data>
+  <data name="StatusConnecting" xml:space="preserve"><value>接続中...</value></data>
+  <data name="StatusDeviceConnected" xml:space="preserve"><value>{0} に接続しました。</value></data>
+  <data name="StatusDeviceDisconnected" xml:space="preserve"><value>{0} の接続が切れました。</value></data>
+  <data name="StatusDeviceAlreadyConnected" xml:space="preserve"><value>{0} は既に接続されています。</value></data>
+  <data name="StatusDeviceReconnected" xml:space="preserve"><value>{0} に再接続しました。</value></data>
+  <data name="StatusDeviceReconnectFailed" xml:space="preserve"><value>{0} の再接続に失敗しました。</value></data>
+  <data name="StatusRecordingStarted" xml:space="preserve"><value>記録を開始しました。</value></data>
+  <data name="StatusRecordingStopped" xml:space="preserve"><value>記録を停止しました。</value></data>
+  <data name="StatusChartCleared" xml:space="preserve"><value>チャートをクリアし、タイマーをリセットしました。</value></data>
+  <data name="StatusDeviceDisconnectedAll" xml:space="preserve"><value>全デバイスの接続が切れました。記録を停止しました。</value></data>
+  <data name="StatusDeviceDiscovered" xml:space="preserve"><value>心拍デバイスを検出：{0}</value></data>
+  <data name="StatusDeviceDisconnectedAction" xml:space="preserve"><value>{0} の接続を切断しました。</value></data>
+
+  <data name="ErrorBluetoothNotReady" xml:space="preserve"><value>Bluetoothがオフか検出がタイムアウトしました。システム設定でBluetoothをオンにしてください。</value></data>
+  <data name="ErrorBluetoothScanFailed" xml:space="preserve"><value>スキャンの開始に失敗しました。Bluetoothがオンか確認してください。</value></data>
+  <data name="ErrorConnectFailed" xml:space="preserve"><value>接続失敗：デバイスを取得できません。</value></data>
+  <data name="ErrorNoDeviceForExport" xml:space="preserve"><value>接続されたデバイスがありません。</value></data>
+  <data name="ErrorExportFailed" xml:space="preserve"><value>エクスポートエラー：{0}</value></data>
+  <data name="ErrorInvalidNumber" xml:space="preserve"><value>有効な数値を入力してください。</value></data>
+  <data name="ErrorMinMustBeLessThanMax" xml:space="preserve"><value>最小値は最大値より小さくしてください。</value></data>
+  <data name="ErrorConnectFirst" xml:space="preserve"><value>記録を始める前にデバイスを接続してください。</value></data>
+
+  <data name="ConfirmClearChart" xml:space="preserve"><value>全心拍カーブをクリアしますか？履歴データが削除され、タイマーがリセットされます。</value></data>
+  <data name="ConfirmDisconnect" xml:space="preserve"><value>デバイス「{0}」の接続を切断しますか？</value></data>
+  <data name="ConfirmCloseWithExport" xml:space="preserve"><value>終了前にデータをエクスポートしますか？</value></data>
+  <data name="ConfirmTitle" xml:space="preserve"><value>確認</value></data>
+
+  <data name="MessageTitle" xml:space="preserve"><value>通知</value></data>
+  <data name="ExportSuccess" xml:space="preserve"><value>データをエクスポートしました：{0}</value></data>
+
+  <data name="ExportDialogTitle" xml:space="preserve"><value>エクスポートオプション</value></data>
+  <data name="ExportTypeHistory" xml:space="preserve"><value>履歴データ</value></data>
+  <data name="ExportTypeSnapshot" xml:space="preserve"><value>スナップショット</value></data>
+  <data name="ExportSelectFields" xml:space="preserve"><value>エクスポートする項目を選択</value></data>
+  <data name="ExportBtnExport" xml:space="preserve"><value>エクスポート</value></data>
+  <data name="ExportBtnCancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="ExportFilter" xml:space="preserve"><value>CSVファイル (*.csv)|*.csv</value></data>
+  <data name="ExportFileName" xml:space="preserve"><value>心拍データ_{0:yyyyMMdd_HHmmss}.csv</value></data>
+
+  <data name="FieldDevice" xml:space="preserve"><value>デバイス</value></data>
+  <data name="FieldHeartRate" xml:space="preserve"><value>心拍数</value></data>
+  <data name="FieldRR" xml:space="preserve"><value>RR</value></data>
+  <data name="FieldDfaAlpha1" xml:space="preserve"><value>DFA α1</value></data>
+
+  <data name="Disconnected" xml:space="preserve"><value> (切断済み)</value></data>
+
+  <data name="ColorRed" xml:space="preserve"><value>赤</value></data>
+  <data name="ColorOrange" xml:space="preserve"><value>オレンジ</value></data>
+  <data name="ColorGreen" xml:space="preserve"><value>緑</value></data>
+  <data name="ColorBlue" xml:space="preserve"><value>青</value></data>
+  <data name="ColorPurple" xml:space="preserve"><value>紫</value></data>
+  <data name="ColorBlack" xml:space="preserve"><value>黒</value></data>
+
+  <data name="BleGetDeviceFailed" xml:space="preserve"><value>BLEデバイスを取得できません</value></data>
+  <data name="BleGetGattFailed" xml:space="preserve"><value>GATTサービスの取得に失敗</value></data>
+  <data name="BleHeartRateSubscribeFailed" xml:space="preserve"><value>心拍通知の購読に失敗</value></data>
+  <data name="BleConnectionException" xml:space="preserve"><value>接続エラー：{0}</value></data>
+  <data name="BleReconnectSuccess" xml:space="preserve"><value>再接続成功</value></data>
+  <data name="BleReconnectFailed" xml:space="preserve"><value>再接続失敗、放弃</value></data>
+  <data name="BleDisconnected" xml:space="preserve"><value>切断</value></data>
+  <data name="BleConnected" xml:space="preserve"><value>接続成功</value></data>
+  <data name="UnknownDevice" xml:space="preserve"><value>不明なデバイス</value></data>
+
+</root>
